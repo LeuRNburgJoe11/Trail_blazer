@@ -9,7 +9,7 @@ def estimate_speed(speed_signal: np.ndarray, sampling_rate: float = 10_000.0) ->
 	"""Estimate linear m/s from 90-tooth wheel transitions; return zero if stopped."""
 	if speed_signal.size < 2:
 		return 0.0
-	levels = speed_signal > np.nanmedian(speed_signal)
-	transitions = int(np.count_nonzero(levels[1:] != levels[:-1]))
+	levels = speed_signal > 0.5
+	rising_edges = int(np.count_nonzero(~levels[:-1] & levels[1:]))
 	duration = speed_signal.size / sampling_rate
-	return (transitions / 2.0) * (np.pi * 0.85 / 90.0) / duration
+	return rising_edges * (np.pi * 0.85 / 90.0) / duration

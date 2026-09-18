@@ -24,6 +24,8 @@ def analyse_acv(path: str, artifact_path: str = None) -> ACVResult:
     Loads data, builds features, applies the pre-trained model (if provided),
     and returns a structured explanation result.
     """
+    if artifact_path is not None and not os.path.isfile(artifact_path):
+        raise FileNotFoundError(f"ACV artifact not found: {artifact_path}")
     case = load_acv_case(path)
     features_df = build_features_for_case(case)
     
@@ -110,4 +112,3 @@ def analyse_acv(path: str, artifact_path: str = None) -> ACVResult:
         warnings=case.warnings,
         metadata=case.metadata
     )
-

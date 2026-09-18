@@ -1,6 +1,22 @@
 # Trail_blazer
 This is Team TrailBlazer's submission for LTA x Nebula Hackathon. Our solution, known as Railpulse, provides advanced condition-monitoring and predictive maintenance pipelines.
 
+## Run all four subsystems
+
+```bash
+python -m pip install -r requirements-all.txt
+python scripts/prepare_data.py --subsystem all
+python scripts/run_all.py
+python -m streamlit run app/main.py
+```
+
+The unified runner validates data, fits on training data only, evaluates Door/ACV/Rail,
+loads the frozen SHM model, and writes all four official prediction CSVs plus
+`predictions.zip` into a new directory under `outputs/combined/`.
+The unified app uses the same frozen inference code. See
+[integration and validation details](docs/INTEGRATION.md).
+The completed merge run is in [`outputs/combined/merged-main/`](outputs/combined/merged-main/).
+
 ## Prepare the official datasets
 
 ```bash

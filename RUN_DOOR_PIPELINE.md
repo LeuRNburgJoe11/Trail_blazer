@@ -1,5 +1,10 @@
 # Run the Door Pipeline
 
+For the official three-column submission and all four subsystems, use
+`python scripts/run_all.py`; see [the integration guide](docs/INTEGRATION.md).
+The legacy command below produces a **six-column diagnostic export**, not the
+official `start_time,end_time,prediction` submission format.
+
 Run these commands from the repository root:
 
 ```powershell
@@ -29,7 +34,7 @@ The command runs the modules in this order:
 2. `door.segmentation`: detects operation boundaries.
 3. `door.features`: extracts cycle features for each interval.
 4. `door.pipeline`: trains the Extra Trees baseline and predicts test statuses.
-5. `core.submission`: writes the required interval CSV columns.
+5. `core.submission`: writes the legacy diagnostic interval CSV columns.
 
 ## Smoke Check
 

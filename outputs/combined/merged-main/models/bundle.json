@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "rail_model": "pooled_spatial",
+  "sha256": {
+    "acv.pkl": "3bfc22934eaf3c1d3812977a44489a19e8ba469e6a4496b11e24cda1705246cd",
+    "door.joblib": "a769b4cd3a468f8a6628f44edc639a4c96abbfe62076bd3f0f9680fa77d548ac",
+    "rail.joblib": "065ad1ec99369b5a0c5a31caf02d8dd5ad1a78708e367ade23cb00dcbd5f6f43",
+    "shm.joblib": "dc27f02278500b5b03c5d4570a03ca55192c426df51b39043b72e3c4fda87221",
+    "shm.json": "2b4dbad3718f736b945466edd447ba5c6e79151ebaf1a6fb46682c4323571b99"
+  },
+  "runtime_versions": {
+    "numpy": "2.3.2",
+    "pandas": "2.3.2",
+    "scipy": "1.16.1",
+    "scikit-learn": "1.7.1",
+    "joblib": "1.5.2",
+    "rainflow": "3.2.0",
+    "openpyxl": "3.1.5"
+  }
+}

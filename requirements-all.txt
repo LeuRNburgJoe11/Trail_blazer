@@ -1,0 +1,4 @@
+# Compatible with the checked-in SHM artifact and all four integrated pipelines.
+-r requirements-shm.txt
+openpyxl==3.1.5
+streamlit==1.49.1

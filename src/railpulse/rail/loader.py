@@ -20,15 +20,25 @@ class RailRecording:
 
 def load_recording(path: str | Path) -> RailRecording:
 	path = Path(path)
-	frame = pd.read_csv(path, header=None)
+	# Official recordings have a header; headerless uploads remain supported.
+	with path.open(encoding="utf-8-sig") as handle:
+		first = handle.readline().strip().split(",")
+	try:
+		[float(value) for value in first]
+		header = None
+	except ValueError:
+		from railpulse.core.data_validation import RAIL_COLUMNS
+		if first != RAIL_COLUMNS:
+			raise ValueError(f"{path.name}: unexpected Rail header or channel order")
+		header = 0
+	frame = pd.read_csv(path, header=header, dtype=float)
 	if frame.shape[1] != EXPECTED_COLUMNS:
 		raise ValueError(f"{path.name} has {frame.shape[1]} columns; expected {EXPECTED_COLUMNS}")
-	numeric = frame.apply(pd.to_numeric, errors="coerce")
-	if numeric.iloc[0].isna().all():
-		numeric = numeric.iloc[1:].reset_index(drop=True)
-	values = numeric.to_numpy(dtype=float)
-	if np.isnan(values).any():
-		values = np.nan_to_num(values, nan=0.0)
+	values = frame.to_numpy(dtype=float)
+	if values.shape[0] != 10_000 or not np.isfinite(values).all():
+		raise ValueError(f"{path.name}: expected 10,000 finite samples")
+	if not np.isin(values[:, 0], [0, 1]).all():
+		raise ValueError(f"{path.name}: speed channel must contain binary pulses")
 	return RailRecording(path.name, values)
 
 

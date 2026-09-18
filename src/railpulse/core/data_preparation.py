@@ -81,7 +81,13 @@ def inspect_files(root: Path, entries: list[dict]) -> list[dict]:
             # Git checkouts can change CRLF to LF. Only accept if that conversion
             # alone reproduces the exact locked source bytes/hash; never rewrite.
             data = path.read_bytes().replace(b"\r\n", b"\n")
-            for variant in (data, data.replace(b"\n", b"\r\n")):
+            # Some official CSVs use LF for the header and CRLF for records.
+            # Git normalizes those too; accept only an exact locked hash match.
+            header, separator, body = data.partition(b"\n")
+            variants = (data, data.replace(b"\n", b"\r\n"),
+                        header + separator + body.replace(b"\n", b"\r\n"),
+                        header + (b"\r\n" if separator else b"") + body)
+            for variant in variants:
                 digest = hashlib.sha1(f"blob {len(variant)}\0".encode() + variant).hexdigest()
                 if len(variant) == entry["bytes"] and digest == entry["git_blob_sha1"]:
                     status = "verified_line_endings"

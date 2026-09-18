@@ -15,3 +15,5 @@ data/Rail_Corrugation/Train/
 data/Rail_Corrugation/Test/*.csv
 data/Rail_Corrugation/Train_Labels.csv
 .download-*
+# Preserve failed development runs locally, never present them as final results.
+outputs/combined/integration/

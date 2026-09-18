@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "test_command": "python -B -m pytest -q",
+  "tests_passed": 98,
+  "test_warnings": 11,
+  "warning_description": "Existing ACV peer_features.py nanmedian warnings for rows with no valid peer; expected missingness handling remains unchanged.",
+  "all_four_datasets_integrity_and_schema_validated": true,
+  "official_zip_schema_and_exact_file_coverage_verified": true,
+  "app_modes_rendered": ["door", "acv", "rail", "shm"],
+  "real_upload_app_vs_batch_checks": {
+    "door": "Test.csv (all predicted segments)",
+    "acv": "acv_test_case.xlsx",
+    "rail": "Test1.csv",
+    "shm": "test01.csv"
+  },
+  "shm_full_predictions_byte_identical_to_original": true,
+  "acv_and_shm_original_frozen_artifacts_unchanged": true,
+  "run_source_snapshot_matches_implementation": true,
+  "test_labels_available": false
+}

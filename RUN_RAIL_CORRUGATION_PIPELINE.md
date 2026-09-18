@@ -1,5 +1,9 @@
 # Run the Rail Corrugation Pipeline
 
+For the validated four-subsystem workflow and train-only Rail model comparison,
+use `python scripts/run_all.py`; see [the integration guide](docs/INTEGRATION.md).
+The following is the retained standalone Extra Trees baseline.
+
 Run these commands from the repository root.
 
 ## 1. Install dependencies
