@@ -1,0 +1,1 @@
+"""Door feature extraction."""
