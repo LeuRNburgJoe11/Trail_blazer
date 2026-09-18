@@ -1,10 +1,10 @@
 import pytest
 import pandas as pd
 import numpy as np
-from acv.preprocessing import standardize_car_telemetry, resolve_parameter
-from acv.thermal_features import extract_thermal_features
-from acv.control_features import extract_control_features
-from acv.data_quality import extract_data_quality_features
+from railpulse.acv.preprocessing import standardize_car_telemetry, resolve_parameter
+from railpulse.acv.thermal_features import extract_thermal_features
+from railpulse.acv.control_features import extract_control_features
+from railpulse.acv.data_quality import extract_data_quality_features
 
 def test_resolve_parameter():
     df = pd.DataFrame({

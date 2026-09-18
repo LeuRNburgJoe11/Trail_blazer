@@ -1,5 +1,5 @@
 import pytest
-from acv.schema import parse_column_name, extract_cars_and_parameters
+from railpulse.acv.schema import parse_column_name, extract_cars_and_parameters
 
 def test_parse_column_name_valid():
     car_id, param = parse_column_name("Car 03 - ACV Running Mode")

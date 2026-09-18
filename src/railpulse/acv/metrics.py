@@ -18,3 +18,4 @@ def rank_decay_score(true_car: str, ranked_cars: List[str]) -> float:
         return (n - (r - 1)) / n
     except ValueError:
         return 0.0
+

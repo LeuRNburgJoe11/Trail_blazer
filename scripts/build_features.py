@@ -4,8 +4,8 @@ import pandas as pd
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-from acv.loader import load_acv_case
-from acv.feature_pipeline import build_features_for_case
+from railpulse.acv.loader import load_acv_case
+from railpulse.acv.feature_pipeline import build_features_for_case
 
 def main():
     data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
@@ -53,3 +53,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

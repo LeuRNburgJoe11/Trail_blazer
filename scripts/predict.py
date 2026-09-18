@@ -5,8 +5,8 @@ import pandas as pd
 import pickle
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-from acv.loader import load_acv_case
-from acv.feature_pipeline import build_features_for_case
+from railpulse.acv.loader import load_acv_case
+from railpulse.acv.feature_pipeline import build_features_for_case
 
 def main():
     parser = argparse.ArgumentParser()

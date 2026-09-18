@@ -66,3 +66,4 @@ def standardize_car_telemetry(car_df: pd.DataFrame) -> pd.DataFrame:
         standardized[canonical_name] = resolve_parameter(car_df, canonical_name)
         
     return standardized
+

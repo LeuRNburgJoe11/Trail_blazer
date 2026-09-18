@@ -13,9 +13,9 @@ def extract_thermal_features(car_df: pd.DataFrame) -> Dict[str, float]:
     """
     features = {}
     
-    indoor = car_df.get("Indoor Average Temperature")
-    outdoor = car_df.get("Outdoor Average Temperature")
-    cooling_sp = car_df.get("Cooling Setpoint")
+    indoor = pd.to_numeric(car_df.get("Indoor Average Temperature"), errors='coerce')
+    outdoor = pd.to_numeric(car_df.get("Outdoor Average Temperature"), errors='coerce')
+    cooling_sp = pd.to_numeric(car_df.get("Cooling Setpoint"), errors='coerce')
     mode = car_df.get("ACV Running Mode")
     
     has_indoor = indoor is not None and not indoor.isna().all()
@@ -67,3 +67,4 @@ def extract_thermal_features(car_df: pd.DataFrame) -> Dict[str, float]:
         features["temp_variability"] = float('nan')
         
     return features
+

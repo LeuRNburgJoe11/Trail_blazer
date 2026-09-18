@@ -1,9 +1,9 @@
 import pytest
 import pandas as pd
 import numpy as np
-from acv.peer_features import get_simple_peer_median, get_context_matched_peer_median, extract_peer_features
-from acv.loader import ACVCase
-from acv.feature_pipeline import build_features_for_case
+from railpulse.acv.peer_features import get_simple_peer_median, get_context_matched_peer_median, extract_peer_features
+from railpulse.acv.loader import ACVCase
+from railpulse.acv.feature_pipeline import build_features_for_case
 
 def test_peer_medians():
     cars_data = {
@@ -47,3 +47,4 @@ def test_build_features_for_case():
     assert "temp_error_median" in df_features.columns
     assert df_features.loc[0, "car_id"] == "01"
     assert df_features.loc[1, "car_id"] == "02"
+

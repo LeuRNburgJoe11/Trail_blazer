@@ -60,3 +60,4 @@ def extract_control_features(car_df: pd.DataFrame, timestamps: pd.Series) -> Dic
         features["load_halved_fraction"] = float('nan')
         
     return features
+

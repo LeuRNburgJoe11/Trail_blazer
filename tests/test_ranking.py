@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from acv.ranking import calculate_robust_z_scores, baseline_ranking
+from railpulse.acv.ranking import calculate_robust_z_scores, baseline_ranking
 
 def test_calculate_robust_z_scores():
     df = pd.DataFrame({
@@ -31,3 +31,4 @@ def test_baseline_ranking():
     assert ranked.iloc[0]["rank"] == 1
     
     assert ranked.iloc[1]["rank"] == 2
+

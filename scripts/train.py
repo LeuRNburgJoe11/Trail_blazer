@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-from acv.validation import evaluate_baseline_loocv, evaluate_logistic_regression_loocv, generate_summary_table
+from railpulse.acv.validation import evaluate_baseline_loocv, evaluate_logistic_regression_loocv, generate_summary_table
 
 def main():
     output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'outputs'))

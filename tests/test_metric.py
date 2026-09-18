@@ -1,5 +1,5 @@
 import pytest
-from acv.metrics import rank_decay_score
+from railpulse.acv.metrics import rank_decay_score
 
 def test_rank_decay_score():
     ranked_cars = ["03", "01", "05", "02", "04", "06", "07", "08"]
@@ -15,3 +15,4 @@ def test_rank_decay_score():
     
     # missing
     assert rank_decay_score("09", ranked_cars) == 0.0
+

@@ -116,3 +116,4 @@ def generate_summary_table(results_df: pd.DataFrame, model_name: str) -> pd.Data
         "Top-2 count": (results_df["true_car_rank"] <= 2).sum(),
         "Worst true-car rank": results_df["true_car_rank"].max()
     }])
+

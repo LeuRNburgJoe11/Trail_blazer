@@ -57,3 +57,4 @@ def extract_data_quality_features(car_df: pd.DataFrame, timestamps: pd.Series) -
         features["number_of_discontinuities"] = 0.0
         
     return features
+

@@ -52,7 +52,7 @@ def build_features_for_case(case: ACVCase) -> pd.DataFrame:
         car_features.update(ctrl_feats)
         
         # Peer - Simple
-        indoor = std_df.get("Indoor Average Temperature", pd.Series(dtype=float))
+        indoor = pd.to_numeric(std_df.get("Indoor Average Temperature", pd.Series(dtype=float)), errors='coerce')
         simple_peer = simple_peer_medians.get(car_id, pd.Series(dtype=float))
         peer_simple_feats = extract_peer_features(indoor, simple_peer, prefix="peer_simple_")
         car_features.update(peer_simple_feats)
@@ -65,3 +65,4 @@ def build_features_for_case(case: ACVCase) -> pd.DataFrame:
         records.append(car_features)
         
     return pd.DataFrame(records)
+

@@ -1,1 +1,4 @@
-"""ACV subsystem."""
+"""
+ACV condition-monitoring pipeline for RailPulse.
+"""
+
