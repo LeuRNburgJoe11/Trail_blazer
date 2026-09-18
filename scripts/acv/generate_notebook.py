@@ -18,7 +18,7 @@ import os
 import sys
 
 # Add src to python path
-sys.path.insert(0, os.path.abspath('../src'))
+sys.path.insert(0, os.path.abspath('../../src'))
 from railpulse.acv.loader import load_acv_case
 
 sns.set_theme(style="whitegrid")
@@ -26,7 +26,7 @@ plt.rcParams['figure.figsize'] = (14, 6)
 """
 
 code_load_labels = """\
-labels_path = '../data/Train_Labels.csv'
+labels_path = '../../data/acv/Train_Labels.csv'
 if os.path.exists(labels_path):
     labels_df = pd.read_csv(labels_path)
     labels_map = dict(zip(labels_df['filename'], labels_df['faulty_car'].astype(str).str.zfill(2)))
@@ -36,7 +36,7 @@ else:
 """
 
 code_explore = """\
-train_dir = '../data/Train'
+train_dir = '../../data/acv/Train'
 case_files = [f for f in os.listdir(train_dir) if f.endswith('.xlsx')]
 
 for filename in case_files:
@@ -88,7 +88,7 @@ nb['cells'] = [
     nbf.v4.new_code_cell(code_explore)
 ]
 
-output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'notebooks', '01_data_exploration.ipynb'))
+output_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'notebooks', 'acv', '01_data_exploration.ipynb'))
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
 with open(output_path, 'w') as f:
     nbf.write(nb, f)

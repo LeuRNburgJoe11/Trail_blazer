@@ -3,7 +3,7 @@ import pandas as pd
 import sys
 
 def main():
-    output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'outputs'))
+    output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'outputs', 'acv'))
     results_path = os.path.join(output_dir, 'validation_results_baseline.csv')
     
     if not os.path.exists(results_path):

@@ -4,11 +4,11 @@ import pandas as pd
 import sys
 import time
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
 from railpulse.acv.loader import load_acv_case
 
 def main():
-    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'acv'))
     train_dir = os.path.join(data_dir, 'Train')
     test_dir = os.path.join(data_dir, 'Test')
     
