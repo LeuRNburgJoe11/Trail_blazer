@@ -23,12 +23,27 @@ Our transparent Baseline model actually outperformed standard machine learning c
 
 The final pipeline uses this highly validated logic to generate safe, explainable predictions for unlabelled data.
 
+### Quick Links to Results
+All generated results and evaluation reports are stored in the `outputs/acv/` directory. Here are direct links to the key files:
+
+* **Final Model Comparison Summary**: [`model_comparison.csv`](outputs/acv/model_comparison.csv)
+  *(This shows the overall performance comparison between the Baseline, Logistic Regression, Random Forest, Gradient Boosting, and SVM).*
+
+* **Final Hackathon Submission (Predictions)**: [`acv_predictions.csv`](outputs/acv/acv_predictions.csv)
+  *(This is the official prediction file for `acv_test_case.xlsx` that you will submit for scoring).*
+
+* **Detailed Fold-by-Fold Results**: 
+  If you want to see exactly how a specific model ranked cars on a case-by-case basis during cross-validation, you can check its specific breakdown:
+  * [`validation_results_baseline.csv`](outputs/acv/validation_results_baseline.csv)
+  * [`validation_results_logistic_regression.csv`](outputs/acv/validation_results_logistic_regression.csv)
+  * [`validation_results_random_forest.csv`](outputs/acv/validation_results_random_forest.csv)
+
 ---
 
 ## Running the Pipeline
 
 ### 1. Data Preparation
-Ensure the dataset is structured in the `data/` folder as follows:
+Ensure the dataset is structured in the `data/acv/` folder as follows:
 - Training files: `data/acv/Train/*.xlsx`
 - Test files: `data/acv/Test/*.xlsx`
 - Labels: `data/acv/Train_Labels.csv`
@@ -36,22 +51,22 @@ Ensure the dataset is structured in the `data/` folder as follows:
 ### 2. Feature Engineering
 Build the car-level feature dataset across all files by running:
 ```bash
-python scripts/build_features.py
+python scripts/acv/build_features.py
 ```
-This extracts all thermal, control, and peer features into `outputs/train_features.csv`. *(Note: Case 04 is very large and may take a few minutes to process)*.
+This extracts all thermal, control, and peer features into `outputs/acv/train_features.csv`. *(Note: Case 04 is very large and may take a few minutes to process)*.
 
 ### 3. Model Training & Evaluation
-Train the model and evaluate it using Leave-One-Case-Out Cross Validation (LOOCV). This script evaluates both the transparent Baseline and a Logistic Regression challenger:
+Train the model and evaluate it using Leave-One-Case-Out Cross Validation (LOOCV). This script evaluates both the transparent Baseline and multiple machine learning challengers:
 ```bash
-python scripts/train.py
+python scripts/acv/train.py
 ```
-- **Output reports**: `outputs/model_comparison.csv`
-- **Frozen model artifact**: `models/acv_model_artifact.pkl`
+- **Output reports**: `outputs/acv/model_comparison.csv`
+- **Frozen model artifact**: `models/acv/acv_model_artifact.pkl`
 
 ### 4. Inference / Prediction
 Generate predictions for an unlabelled test case without retraining the model:
 ```bash
-python scripts/predict.py --input data/acv/Test/acv_test_case.xlsx --output outputs/acv_predictions.csv
+python scripts/acv/predict.py --input data/acv/Test/acv_test_case.xlsx --output outputs/acv/acv_predictions.csv
 ```
 The output CSV perfectly matches the official submission schema (`file_id,ranked_cars`).
 
@@ -60,7 +75,7 @@ For frontend developers, the analysis pipeline can be called directly to generat
 ```python
 from railpulse.acv.pipeline import analyse_acv
 
-result = analyse_acv("data/acv/Test/acv_test_case.xlsx", artifact_path="models/acv_model_artifact.pkl")
+result = analyse_acv("data/acv/Test/acv_test_case.xlsx", artifact_path="models/acv/acv_model_artifact.pkl")
 
 # Access ranked cars, prediction scores, and top feature contributors for explanations
 print(result.ranked_cars)
