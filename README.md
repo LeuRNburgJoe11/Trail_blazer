@@ -1,6 +1,44 @@
 # Trail_blazer
 This is Team TrailBlazer's submission for LTA x Nebula Hackathon. Our solution, known as Railpulse, provides advanced condition-monitoring and predictive maintenance pipelines.
 
+## Run all four subsystems
+
+```bash
+python -m pip install -r requirements-all.txt
+python scripts/prepare_data.py --subsystem all
+python scripts/run_all.py
+python -m streamlit run app/main.py
+```
+
+The unified runner validates data, fits on training data only, evaluates Door/ACV/Rail,
+loads the frozen SHM model, and writes all four official prediction CSVs plus
+`predictions.zip` into a new directory under `outputs/combined/`.
+The unified app uses the same frozen inference code. See
+[integration and validation details](docs/INTEGRATION.md).
+The completed merge run is in [`outputs/combined/merged-main/`](outputs/combined/merged-main/).
+
+## Prepare the official datasets
+
+```bash
+python scripts/prepare_data.py --subsystem all --plan
+python scripts/prepare_data.py --subsystem all
+python scripts/prepare_data.py --subsystem all --verify-only
+```
+
+The shared pipeline downloads missing data, references, and example schemas from a
+pinned organiser version into the existing subsystem folders. It verifies checksums,
+validates schemas and labels, and preserves existing files. A clean setup downloads
+approximately 6.46 GB; use `--subsystem door acv` or `--subsystem shm` for a subset.
+See [the data preparation guide](docs/DATA_PREPARATION.md) for setup and validation details.
+
+## Structural Health Monitoring
+
+The SHM implementation predicts cumulative fatigue damage from a headerless stress CSV.
+It includes verified data download, rainflow features, nested model evaluation, a frozen
+model, exact prediction exports, and an upload/download panel. See
+[the SHM implementation and run guide](docs/SHM.md) for setup, measured validation results,
+limitations, and integration instructions.
+
 ## ACV Refrigerant Leakage Localisation
 This module contains the backend data-science pipeline for identifying air conditioning ventilation (ACV) refrigerant leakage faults from train telemetry. 
 
@@ -23,12 +61,27 @@ Our transparent Baseline model actually outperformed standard machine learning c
 
 The final pipeline uses this highly validated logic to generate safe, explainable predictions for unlabelled data.
 
+### Quick Links to Results
+All generated results and evaluation reports are stored in the `outputs/acv/` directory. Here are direct links to the key files:
+
+* **Final Model Comparison Summary**: [`model_comparison.csv`](outputs/acv/model_comparison.csv)
+  *(This shows the overall performance comparison between the Baseline, Logistic Regression, Random Forest, Gradient Boosting, and SVM).*
+
+* **Final Hackathon Submission (Predictions)**: [`acv_predictions.csv`](outputs/acv/acv_predictions.csv)
+  *(This is the official prediction file for `acv_test_case.xlsx` that you will submit for scoring).*
+
+* **Detailed Fold-by-Fold Results**: 
+  If you want to see exactly how a specific model ranked cars on a case-by-case basis during cross-validation, you can check its specific breakdown:
+  * [`validation_results_baseline.csv`](outputs/acv/validation_results_baseline.csv)
+  * [`validation_results_logistic_regression.csv`](outputs/acv/validation_results_logistic_regression.csv)
+  * [`validation_results_random_forest.csv`](outputs/acv/validation_results_random_forest.csv)
+
 ---
 
 ## Running the Pipeline
 
 ### 1. Data Preparation
-Ensure the dataset is structured in the `data/` folder as follows:
+Ensure the dataset is structured in the `data/acv/` folder as follows:
 - Training files: `data/acv/Train/*.xlsx`
 - Test files: `data/acv/Test/*.xlsx`
 - Labels: `data/acv/Train_Labels.csv`
@@ -36,22 +89,22 @@ Ensure the dataset is structured in the `data/` folder as follows:
 ### 2. Feature Engineering
 Build the car-level feature dataset across all files by running:
 ```bash
-python scripts/build_features.py
+python scripts/acv/build_features.py
 ```
-This extracts all thermal, control, and peer features into `outputs/train_features.csv`. *(Note: Case 04 is very large and may take a few minutes to process)*.
+This extracts all thermal, control, and peer features into `outputs/acv/train_features.csv`. *(Note: Case 04 is very large and may take a few minutes to process)*.
 
 ### 3. Model Training & Evaluation
-Train the model and evaluate it using Leave-One-Case-Out Cross Validation (LOOCV). This script evaluates both the transparent Baseline and a Logistic Regression challenger:
+Train the model and evaluate it using Leave-One-Case-Out Cross Validation (LOOCV). This script evaluates both the transparent Baseline and multiple machine learning challengers:
 ```bash
-python scripts/train.py
+python scripts/acv/train.py
 ```
-- **Output reports**: `outputs/model_comparison.csv`
-- **Frozen model artifact**: `models/acv_model_artifact.pkl`
+- **Output reports**: `outputs/acv/model_comparison.csv`
+- **Frozen model artifact**: `models/acv/acv_model_artifact.pkl`
 
 ### 4. Inference / Prediction
 Generate predictions for an unlabelled test case without retraining the model:
 ```bash
-python scripts/predict.py --input data/acv/Test/acv_test_case.xlsx --output outputs/acv_predictions.csv
+python scripts/acv/predict.py --input data/acv/Test/acv_test_case.xlsx --output outputs/acv/acv_predictions.csv
 ```
 The output CSV perfectly matches the official submission schema (`file_id,ranked_cars`).
 
@@ -60,7 +113,7 @@ For frontend developers, the analysis pipeline can be called directly to generat
 ```python
 from railpulse.acv.pipeline import analyse_acv
 
-result = analyse_acv("data/acv/Test/acv_test_case.xlsx", artifact_path="models/acv_model_artifact.pkl")
+result = analyse_acv("data/acv/Test/acv_test_case.xlsx", artifact_path="models/acv/acv_model_artifact.pkl")
 
 # Access ranked cars, prediction scores, and top feature contributors for explanations
 print(result.ranked_cars)

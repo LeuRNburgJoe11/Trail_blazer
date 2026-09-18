@@ -1,0 +1,19 @@
+# Local Python caches and reproducible raw data/build products.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+data/SHM/Train/
+data/SHM/Test/
+data/SHM/Train_Labels.csv
+outputs/shm/cache/
+data/Door/*.csv
+data/acv/Train/
+data/acv/Test/
+data/acv/Train_Labels.csv
+data/Rail_Corrugation/Train/
+data/Rail_Corrugation/Test/*.csv
+data/Rail_Corrugation/Train_Labels.csv
+.download-*
+# Preserve failed development runs locally, never present them as final results.
+outputs/combined/integration/

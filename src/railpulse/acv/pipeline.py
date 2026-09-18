@@ -24,6 +24,8 @@ def analyse_acv(path: str, artifact_path: str = None) -> ACVResult:
     Loads data, builds features, applies the pre-trained model (if provided),
     and returns a structured explanation result.
     """
+    if artifact_path is not None and not os.path.isfile(artifact_path):
+        raise FileNotFoundError(f"ACV artifact not found: {artifact_path}")
     case = load_acv_case(path)
     features_df = build_features_for_case(case)
     
@@ -44,15 +46,21 @@ def analyse_acv(path: str, artifact_path: str = None) -> ACVResult:
     if artifact_path and os.path.exists(artifact_path):
         with open(artifact_path, 'rb') as f:
             artifact = pickle.load(f)
-        pipeline = artifact["pipeline"]
+        
         feature_schema = artifact["feature_schema"]
+        model_type = artifact.get("model_type", "sklearn")
         
         for col in feature_schema:
             if col not in features_df.columns:
                 features_df[col] = 0.0
                 
-        X_test = features_df[feature_schema].fillna(0)
-        scores = pipeline.predict_proba(X_test)[:, 1]
+        if model_type == "baseline":
+            scored_df = calculate_robust_z_scores(features_df, feature_schema)
+            scores = scored_df[[f"z_{c}" for c in feature_schema]].sum(axis=1)
+        else:
+            pipeline = artifact["pipeline"]
+            X_test = features_df[feature_schema].fillna(0)
+            scores = pipeline.predict_proba(X_test)[:, 1]
     else:
         # Fallback to baseline sum of z-scores if no model is provided
         baseline_features = [
@@ -104,4 +112,3 @@ def analyse_acv(path: str, artifact_path: str = None) -> ACVResult:
         warnings=case.warnings,
         metadata=case.metadata
     )
-

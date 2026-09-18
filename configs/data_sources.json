@@ -1,0 +1,10 @@
+{
+  "repository": "aochinwen/NebulaX-Hackathon-ProblemStatement",
+  "commit": "966c976005db2e3e40a691cff268fdb8f396a5df",
+  "subsystems": {
+    "door": {"source": "Door", "destination": "Door", "train_files": 1, "test_files": 1},
+    "acv": {"source": "ACV", "destination": "acv", "train_files": 6, "test_files": 1},
+    "rail": {"source": "Rail_Corrugation", "destination": "Rail_Corrugation", "train_files": 272, "test_files": 68},
+    "shm": {"source": "SHM", "destination": "SHM", "train_files": 64, "test_files": 16}
+  }
+}

@@ -42,9 +42,10 @@ def evaluate_baseline_loocv(features_df: pd.DataFrame, labels_map: Dict[str, str
         
     return pd.DataFrame(results)
 
-def evaluate_logistic_regression_loocv(features_df: pd.DataFrame, labels_map: Dict[str, str]) -> pd.DataFrame:
+def evaluate_sklearn_model_loocv(features_df: pd.DataFrame, labels_map: Dict[str, str], model_factory) -> pd.DataFrame:
     """
-    Evaluates Logistic Regression using LOOCV.
+    Evaluates any scikit-learn compatible model using LOOCV.
+    model_factory should be a callable that returns a new model instance.
     """
     cases = features_df['case_id'].unique()
     results = []
@@ -68,12 +69,15 @@ def evaluate_logistic_regression_loocv(features_df: pd.DataFrame, labels_map: Di
         X_val_scaled = scaler.transform(X_val)
         
         # Train
-        model = LogisticRegression(penalty="l2", class_weight="balanced", max_iter=5000, random_state=42)
+        model = model_factory()
         model.fit(X_train_scaled, y_train)
         
         # Predict ranking scores (probability of faulty)
-        scores = model.predict_proba(X_val_scaled)[:, 1]
-        
+        if hasattr(model, "predict_proba"):
+            scores = model.predict_proba(X_val_scaled)[:, 1]
+        else:
+            scores = model.decision_function(X_val_scaled)
+            
         val_df['ranking_score'] = scores
         val_df = val_df.sort_values(by=['ranking_score', 'car_id'], ascending=[False, True]).reset_index(drop=True)
         val_df['rank'] = val_df.index + 1
