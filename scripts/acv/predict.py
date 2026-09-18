@@ -28,22 +28,29 @@ def main():
         print(f"Model artifact not found at {artifact_path}. Please train first.")
         return
         
+    from railpulse.acv.ranking import calculate_robust_z_scores
+    
     with open(artifact_path, 'rb') as f:
         artifact = pickle.load(f)
         
-    pipeline = artifact["pipeline"]
     feature_schema = artifact["feature_schema"]
+    model_type = artifact.get("model_type", "sklearn")
     
     # Prepare features, filling missing schema cols with 0
     for col in feature_schema:
         if col not in features_df.columns:
             features_df[col] = 0.0
             
-    X_test = features_df[feature_schema].fillna(0)
-    
-    # Predict
-    scores = pipeline.predict_proba(X_test)[:, 1]
-    features_df['ranking_score'] = scores
+    if model_type == "baseline":
+        scored_df = calculate_robust_z_scores(features_df, feature_schema)
+        scores = scored_df[[f"z_{c}" for c in feature_schema]].sum(axis=1)
+        features_df['ranking_score'] = scores
+    else:
+        pipeline = artifact["pipeline"]
+        X_test = features_df[feature_schema].fillna(0)
+        # Predict
+        scores = pipeline.predict_proba(X_test)[:, 1]
+        features_df['ranking_score'] = scores
     
     # Rank
     features_df = features_df.sort_values(by=['ranking_score', 'car_id'], ascending=[False, True]).reset_index(drop=True)

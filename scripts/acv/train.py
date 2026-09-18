@@ -62,28 +62,48 @@ def main():
     
     comparison.to_csv(os.path.join(output_dir, "model_comparison.csv"), index=False)
     
-    # Decide best model: the baseline performed best, but we are supposed to fit a final machine learning model artifact.
-    # We will fit Logistic Regression as it's typically a strong, explainable fallback.
-    print("\nFitting final LR model on all training data (for artifact generation)...")
-    exclude_cols = ['case_id', 'car_id', 'faulty', 'filename']
-    feature_cols = [c for c in features_df.columns if c not in exclude_cols]
+    # Decide best model based on Mean rank-decay score
+    best_model_name = comparison.iloc[0]["Model"]
+    print(f"\nBest model selected: {best_model_name}")
     
-    X_train = features_df[feature_cols].fillna(0)
-    y_train = features_df['faulty']
-    
-    pipeline = Pipeline([
-        ('scaler', StandardScaler()),
-        ('classifier', LogisticRegression(penalty="l2", class_weight="balanced", max_iter=5000, random_state=42))
-    ])
-    
-    pipeline.fit(X_train, y_train)
-    
-    artifact = {
-        "feature_schema": feature_cols,
-        "pipeline": pipeline,
-        "version": "1.0",
-        "training_cases": features_df['case_id'].unique().tolist()
-    }
+    if best_model_name == "Baseline":
+        print("Freezing Baseline artifact...")
+        baseline_features = [
+            "temp_error_median", 
+            "peer_context_residual_median",
+            "peer_context_longest_persistent_deviation",
+            "active_cooling_duty_cycle"
+        ]
+        artifact = {
+            "model_type": "baseline",
+            "feature_schema": baseline_features,
+            "version": "1.0",
+            "training_cases": features_df['case_id'].unique().tolist()
+        }
+    else:
+        print(f"Fitting final {best_model_name} model on all training data...")
+        factory = models[best_model_name]
+        
+        exclude_cols = ['case_id', 'car_id', 'faulty', 'filename']
+        feature_cols = [c for c in features_df.columns if c not in exclude_cols]
+        
+        X_train = features_df[feature_cols].fillna(0)
+        y_train = features_df['faulty']
+        
+        pipeline = Pipeline([
+            ('scaler', StandardScaler()),
+            ('classifier', factory())
+        ])
+        
+        pipeline.fit(X_train, y_train)
+        
+        artifact = {
+            "model_type": "sklearn",
+            "feature_schema": feature_cols,
+            "pipeline": pipeline,
+            "version": "1.0",
+            "training_cases": features_df['case_id'].unique().tolist()
+        }
     
     models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'models', 'acv'))
     os.makedirs(models_dir, exist_ok=True)
