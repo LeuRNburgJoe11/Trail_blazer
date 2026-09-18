@@ -1225,7 +1225,7 @@ Implement:
 
 ```bash
 python scripts/predict.py \
-    --input data/Test/acv_test_case.xlsx \
+    --input data/acv/Test/acv_test_case.xlsx \
     --output outputs/acv_predictions.csv
 ```
 

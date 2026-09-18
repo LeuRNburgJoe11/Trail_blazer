@@ -11,7 +11,7 @@ from railpulse.door.segmentation import detect_intervals
 
 
 def test_door_boundaries_match_reference_intervals() -> None:
-	data_dir = Path(__file__).parents[1] / "FOR PARTICIPANTS" / "02_Datasets" / "Door"
+	data_dir = Path(__file__).parents[1] / "data" / "Door"
 	samples = load_stream(data_dir / "Train.csv")
 	intervals = detect_intervals(samples)
 	with (data_dir / "Train_Segments_Answer.csv").open(encoding="utf-8") as handle:

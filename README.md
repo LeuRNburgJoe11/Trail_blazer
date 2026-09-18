@@ -29,9 +29,9 @@ The final pipeline uses this highly validated logic to generate safe, explainabl
 
 ### 1. Data Preparation
 Ensure the dataset is structured in the `data/` folder as follows:
-- Training files: `data/Train/*.xlsx`
-- Test files: `data/Test/*.xlsx`
-- Labels: `data/Train_Labels.csv`
+- Training files: `data/acv/Train/*.xlsx`
+- Test files: `data/acv/Test/*.xlsx`
+- Labels: `data/acv/Train_Labels.csv`
 
 ### 2. Feature Engineering
 Build the car-level feature dataset across all files by running:
@@ -51,7 +51,7 @@ python scripts/train.py
 ### 4. Inference / Prediction
 Generate predictions for an unlabelled test case without retraining the model:
 ```bash
-python scripts/predict.py --input data/Test/acv_test_case.xlsx --output outputs/acv_predictions.csv
+python scripts/predict.py --input data/acv/Test/acv_test_case.xlsx --output outputs/acv_predictions.csv
 ```
 The output CSV perfectly matches the official submission schema (`file_id,ranked_cars`).
 
@@ -60,7 +60,7 @@ For frontend developers, the analysis pipeline can be called directly to generat
 ```python
 from railpulse.acv.pipeline import analyse_acv
 
-result = analyse_acv("data/Test/acv_test_case.xlsx", artifact_path="models/acv_model_artifact.pkl")
+result = analyse_acv("data/acv/Test/acv_test_case.xlsx", artifact_path="models/acv_model_artifact.pkl")
 
 # Access ranked cars, prediction scores, and top feature contributors for explanations
 print(result.ranked_cars)
