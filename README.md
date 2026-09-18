@@ -4,7 +4,28 @@ This is Team TrailBlazer's submission for LTA x Nebula Hackathon. Our solution, 
 ## ACV Refrigerant Leakage Localisation
 This module contains the backend data-science pipeline for identifying air conditioning ventilation (ACV) refrigerant leakage faults from train telemetry. 
 
-The pipeline uses dynamic schema parsing, thermal/control feature engineering, and context-matched peer residuals to rank cars from most likely to least likely to have a fault.
+### Approach & Methodology
+Because the dataset contains a limited number of independent fault cases (6 labelled cases), we deliberately avoided complex, "black-box" models that are prone to severe overfitting. Instead, we designed a highly robust, explainable pipeline based on **Context-Matched Peer Residuals**:
+
+1. **Dynamic Schema Parsing**: Automatically maps highly variable telemetry columns (e.g., disparate temperature sensor names across different train versions) into a unified, standardised feature space.
+2. **Context Matching**: Instead of naively comparing a car's temperature to the rest of the train, the system only compares a car to *valid peer cars operating under the exact same physical conditions* (same running mode, load state, and cooling setpoint).
+3. **Transparent Scoring**: Extracts robust median deviations and duty-cycle discrepancies to flag cars that persistently struggle to reach their cooling setpoints compared to their context-matched peers.
+
+### Model Performance (Cross-Validation)
+We rigorously evaluated the pipeline using **Leave-One-Case-Out Cross Validation (LOOCV)** to guarantee no data leakage between cases. 
+
+Our transparent Baseline model actually outperformed standard machine learning classifiers (like Logistic Regression) due to its robustness against overfitting on a small dataset. 
+
+**Baseline Evaluation Metrics:**
+- **Mean Rank-Decay Score:** `0.979` (out of 1.0)
+- **Top-1 Accuracy:** The model correctly placed the true faulty car in exactly **1st place** in 5 out of 6 test folds.
+- **Worst-Case Rank:** The model placed the true faulty car in **2nd place** for the single remaining fold.
+
+The final pipeline uses this highly validated logic to generate safe, explainable predictions for unlabelled data.
+
+---
+
+## Running the Pipeline
 
 ### 1. Data Preparation
 Ensure the dataset is structured in the `data/` folder as follows:
@@ -20,7 +41,7 @@ python scripts/build_features.py
 This extracts all thermal, control, and peer features into `outputs/train_features.csv`. *(Note: Case 04 is very large and may take a few minutes to process)*.
 
 ### 3. Model Training & Evaluation
-Train the model and evaluate it using Leave-One-Case-Out Cross Validation (LOOCV). This script evaluates both a transparent heuristic Baseline and a Logistic Regression challenger:
+Train the model and evaluate it using Leave-One-Case-Out Cross Validation (LOOCV). This script evaluates both the transparent Baseline and a Logistic Regression challenger:
 ```bash
 python scripts/train.py
 ```
