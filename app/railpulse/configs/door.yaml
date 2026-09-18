@@ -1,0 +1,19 @@
+subsystem: door
+version: v0_baseline
+
+segmentation:
+  min_gap: "0.4s"       # bridge sensor jitter / momentary flag dropout
+  min_duration: "0.3s"  # drop obviously-too-short spurious detections
+
+evaluation:
+  holdout_frac: 0.3     # fraction of Train.csv (by time) held out for pipeline eval
+
+model:
+  type: ExtraTreesClassifier
+  n_estimators: 300
+  max_depth: 6
+  class_weight: balanced
+  random_state: 0
+
+# Challenger to try once this baseline is beaten:
+#   MiniRocket + linear classifier, or a small temporal CNN on resampled cycles.

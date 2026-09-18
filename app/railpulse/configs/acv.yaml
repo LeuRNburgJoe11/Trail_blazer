@@ -1,0 +1,17 @@
+subsystem: acv
+version: v0_baseline
+
+peer_features:
+  temp_param_candidates:
+    - "Indoor Average Temperature"
+    - "Passenger Cabin Temperature Detected Value"
+    - "Observation Area Temperature Detected Value"
+  pressure_param_candidates:
+    - "Refrigeration System 1 Low Pressure Value"
+    - "Refrigeration System 2 Low Pressure Value"
+
+# Model progression (architecture review Section 03):
+#   v0_baseline    - transparent peer-residual ranking (this config, no fitting)
+#   v1_logistic    - regularised logistic regression / shallow boosted model
+#                    on car-level summaries, once enough cases justify it
+#   v2_pca_residual - optional PCA reconstruction residual as an extra feature
