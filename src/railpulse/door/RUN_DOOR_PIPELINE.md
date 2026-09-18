@@ -62,8 +62,10 @@ abnormal.
    degrades to predicting the majority status for every interval instead of failing.
 
 5. **Emit** -- `predict_intervals` re-runs detection on the test stream, scores each interval,
-   and `core.submission.write_intervals` writes the fixed column order below. Column order is
-   enforced there, so the CSV cannot drift out of the required schema.
+   and `core.submission.write_intervals` writes the legacy diagnostic interval CSV columns in
+   the fixed order below. Column order is enforced there, so the CSV cannot drift out of that
+   schema. Note this is the six-column diagnostic export, not the official submission --
+   use `scripts/run_all.py` for that.
 
 ## Smoke Check
 
