@@ -67,5 +67,18 @@ def main():
         
     print(f"Predictions saved to {args.output}")
 
+    # Save Detailed Health Report
+    features_df['rank'] = features_df.index + 1
+    features_df['file_id'] = case.filename
+    
+    # Reorder columns to make it readable
+    cols_to_export = ['file_id', 'car_id', 'rank', 'ranking_score'] + feature_schema
+    detailed_df = features_df[cols_to_export].copy()
+    detailed_df = detailed_df.rename(columns={'ranking_score': 'anomaly_score'})
+    
+    detailed_out_path = os.path.join(out_dir, 'acv_detailed_health_report.csv') if out_dir else 'acv_detailed_health_report.csv'
+    detailed_df.to_csv(detailed_out_path, index=False)
+    print(f"Detailed health report saved to {detailed_out_path}")
+
 if __name__ == "__main__":
     main()
