@@ -32,3 +32,4 @@ def test_extract_cars_and_parameters():
     assert cars["04"]["ACV Running Mode"] == "Car 04 - ACV Running Mode"
     
     assert "Time" not in cars
+

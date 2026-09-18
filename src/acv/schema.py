@@ -29,3 +29,4 @@ def extract_cars_and_parameters(columns: List[str]) -> Dict[str, Dict[str, str]]
                 cars[car_id] = {}
             cars[car_id][param_name] = col
     return cars
+
