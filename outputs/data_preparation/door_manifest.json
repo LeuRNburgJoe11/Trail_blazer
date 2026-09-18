@@ -1,0 +1,97 @@
+{
+  "repository": "aochinwen/NebulaX-Hackathon-ProblemStatement",
+  "commit": "966c976005db2e3e40a691cff268fdb8f396a5df",
+  "subsystem": "door",
+  "validation": {
+    "recordings": [
+      {
+        "file_id": "Train.csv",
+        "rows": 18036,
+        "columns": 17
+      },
+      {
+        "file_id": "Test.csv",
+        "rows": 6253,
+        "columns": 17
+      }
+    ],
+    "labelled_segments": 110,
+    "label_counts": {
+      "Normal": 80,
+      "Abnormal resistance": 30
+    },
+    "warnings": []
+  },
+  "files": [
+    {
+      "path": "data/Door/Test.csv",
+      "source": "PS3/02_Datasets/Door/Test.csv",
+      "verification": "verified_line_endings",
+      "source_git_blob_sha1": "a8665d573f17d476aa773b8f11241b9021eed9ea",
+      "source_bytes": 401434,
+      "bytes": 395180,
+      "git_blob_sha1": "e5f24e30f3f3ddfb6ec292f642e0a13c0ce58c91",
+      "sha256": "7b27e3041ff5d4135895128b0e8682c3a653608872f4ab885e2a92cb6053c139"
+    },
+    {
+      "path": "data/Door/Train.csv",
+      "source": "PS3/02_Datasets/Door/Train.csv",
+      "verification": "verified_line_endings",
+      "source_git_blob_sha1": "779573d3c96d2a12d5c475e76c4b5e1696870bc1",
+      "source_bytes": 1162295,
+      "bytes": 1144258,
+      "git_blob_sha1": "b4c0ee3665f1b5e231894964b7cc36b650efdd7a",
+      "sha256": "ab2c3edbdda49a6da397bb602f5b6e33310166b758f904df7f14d89584557484"
+    },
+    {
+      "path": "data/Door/Train_Segments_Answer.csv",
+      "source": "PS3/02_Datasets/Door/Train_Segments_Answer.csv",
+      "verification": "verified_line_endings",
+      "source_git_blob_sha1": "6bae1c7d24494f4948c06f7c00c4370061166fd7",
+      "source_bytes": 8417,
+      "bytes": 8306,
+      "git_blob_sha1": "11217881418e16bf109e572f501c19a5164b4eb4",
+      "sha256": "71f7e73dc99a964914025e25c27763b8bd9ad1481be3c446478c95675eb34487"
+    },
+    {
+      "path": "examples/door_predictions.csv",
+      "source": "PS3/04_Example_Submission/door_predictions.csv",
+      "verification": "verified",
+      "source_git_blob_sha1": "10c4b48fd39f3e5402a68b7ea64275e2214bf60b",
+      "source_bytes": 280,
+      "bytes": 280,
+      "git_blob_sha1": "10c4b48fd39f3e5402a68b7ea64275e2214bf60b",
+      "sha256": "7ce71a4d37d20d57acc2a1991beb8015c52f975dd65bae5ca0c9fe2fad2b442a"
+    },
+    {
+      "path": "references/Door/Door Data Headers.md",
+      "source": "PS3/03_References/Door/Door Data Headers.md",
+      "verification": "verified",
+      "source_git_blob_sha1": "d56d0cb76af3cff2fc88b9529100d860ce8a63cc",
+      "source_bytes": 1767,
+      "bytes": 1767,
+      "git_blob_sha1": "d56d0cb76af3cff2fc88b9529100d860ce8a63cc",
+      "sha256": "9931247961ccba39ccb120d013201881cf918439563a673df926bcfdcf67d594"
+    },
+    {
+      "path": "references/Door/Door_Subsystem_Info_Kit.md",
+      "source": "PS3/03_References/Door/Door_Subsystem_Info_Kit.md",
+      "verification": "verified",
+      "source_git_blob_sha1": "3bdb2831c6be0c7b3eea17766eb6bc4a734d55c4",
+      "source_bytes": 10009,
+      "bytes": 10009,
+      "git_blob_sha1": "3bdb2831c6be0c7b3eea17766eb6bc4a734d55c4",
+      "sha256": "36084c1a3bc6044e479023d30919f836324f57189b6aacafd965fd1cf28f32dc"
+    },
+    {
+      "path": "references/Problem_Statement_3_Specifications.md",
+      "source": "PS3/01_Problem_Statement_3_Specifications.md",
+      "verification": "verified",
+      "source_git_blob_sha1": "a16c3fa8b21a2dd27c39ea896b7ead434180388d",
+      "source_bytes": 17856,
+      "bytes": 17856,
+      "git_blob_sha1": "a16c3fa8b21a2dd27c39ea896b7ead434180388d",
+      "sha256": "0064dbed7055f945f4a1fc4be50e7872d09dd232f0ab69e7b9a263104e50e95d"
+    }
+  ]
+}

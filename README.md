@@ -1,6 +1,20 @@
 # Trail_blazer
 This is Team TrailBlazer's submission for LTA x Nebula Hackathon. Our solution, known as Railpulse, provides advanced condition-monitoring and predictive maintenance pipelines.
 
+## Prepare the official datasets
+
+```bash
+python scripts/prepare_data.py --subsystem all --plan
+python scripts/prepare_data.py --subsystem all
+python scripts/prepare_data.py --subsystem all --verify-only
+```
+
+The shared pipeline downloads missing data, references, and example schemas from a
+pinned organiser version into the existing subsystem folders. It verifies checksums,
+validates schemas and labels, and preserves existing files. A clean setup downloads
+approximately 6.46 GB; use `--subsystem door acv` or `--subsystem shm` for a subset.
+See [the data preparation guide](docs/DATA_PREPARATION.md) for setup and validation details.
+
 ## Structural Health Monitoring
 
 The SHM implementation predicts cumulative fatigue damage from a headerless stress CSV.
