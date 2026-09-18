@@ -19,7 +19,7 @@ import sys
 
 # Add src to python path
 sys.path.insert(0, os.path.abspath('../src'))
-from acv.loader import load_acv_case
+from railpulse.acv.loader import load_acv_case
 
 sns.set_theme(style="whitegrid")
 plt.rcParams['figure.figsize'] = (14, 6)

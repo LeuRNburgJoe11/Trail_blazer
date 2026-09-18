@@ -2,7 +2,7 @@ import pytest
 import pandas as pd
 import tempfile
 import os
-from acv.loader import load_acv_case, ACVCase
+from railpulse.acv.loader import load_acv_case, ACVCase
 
 def test_load_acv_case():
     # Create dummy data

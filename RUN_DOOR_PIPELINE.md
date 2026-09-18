@@ -40,7 +40,7 @@ $env:PYTHONPATH = "src"
 python -c "from pathlib import Path; import csv; from railpulse.door.loader import load_stream; from railpulse.door.segmentation import detect_intervals; b=Path('FOR PARTICIPANTS/02_Datasets/Door'); s=load_stream(b/'Train.csv'); i=detect_intervals(s); r=list(csv.DictReader((b/'Train_Segments_Answer.csv').open(encoding='utf-8'))); assert len(i)==len(r)==110; assert [s[x.start_index].timestamp for x in i]==[x['start_time'] for x in r]; assert [s[x.end_index].timestamp for x in i]==[x['end_time'] for x in r]; print('Door boundary check passed')"
 ```
 
-`predictions.csv` is written to the repository root and uses:
+`door_predictions.csv` is written to the repository root and uses:
 
 ```text
 segment_id,start_time,end_time,operation,status,n_rows
