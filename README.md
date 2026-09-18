@@ -66,3 +66,22 @@ result = analyse_acv("data/acv/Test/acv_test_case.xlsx", artifact_path="models/a
 print(result.ranked_cars)
 print(result.top_feature_contributors)
 ```
+
+## Rail Corrugation
+
+Generate one prediction for every recording in `data/Rail_Corrugation/Test/`:
+
+```bash
+python scripts/rail/predict.py
+```
+
+The predictions are written to `outputs/rail_predictions.csv` with the columns
+`file_id` and `prediction`. To use different paths, pass `--input`, `--labels`, and
+`--output`:
+
+```bash
+python scripts/rail/predict.py \
+	--input data/Rail_Corrugation/Test \
+	--labels data/Rail_Corrugation/Train_Labels.csv \
+	--output outputs/rail_predictions.csv
+```
