@@ -5,11 +5,11 @@ import json
 import sys
 
 # Add src to path so we can import acv
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
 from railpulse.acv.loader import load_acv_case
 
 def main():
-    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'acv'))
     train_dir = os.path.join(data_dir, 'Train')
     test_dir = os.path.join(data_dir, 'Test')
     
@@ -97,7 +97,7 @@ def main():
         
     manifest_df = pd.DataFrame(manifest_records)
     
-    output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'outputs'))
+    output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'outputs', 'acv'))
     os.makedirs(output_dir, exist_ok=True)
     
     csv_path = os.path.join(output_dir, 'dataset_manifest.csv')

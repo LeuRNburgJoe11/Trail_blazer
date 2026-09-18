@@ -4,7 +4,7 @@ import argparse
 import pandas as pd
 import pickle
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
 from railpulse.acv.loader import load_acv_case
 from railpulse.acv.feature_pipeline import build_features_for_case
 
@@ -21,7 +21,7 @@ def main():
     features_df = build_features_for_case(case)
     
     # Load artifact
-    models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'models'))
+    models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'models', 'acv'))
     artifact_path = os.path.join(models_dir, 'acv_model_artifact.pkl')
     
     if not os.path.exists(artifact_path):

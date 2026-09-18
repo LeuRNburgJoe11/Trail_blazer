@@ -6,11 +6,11 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.pipeline import Pipeline
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'src')))
 from railpulse.acv.validation import evaluate_baseline_loocv, evaluate_logistic_regression_loocv, generate_summary_table
 
 def main():
-    output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'outputs'))
+    output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'outputs', 'acv'))
     features_path = os.path.join(output_dir, 'train_features.csv')
     
     if not os.path.exists(features_path):
@@ -21,7 +21,7 @@ def main():
     # Ensure car_id is string with leading zeros
     features_df['car_id'] = features_df['car_id'].astype(str).str.zfill(2)
     
-    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'data'))
+    data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'acv'))
     labels_path = os.path.join(data_dir, 'Train_Labels.csv')
     labels_df = pd.read_csv(labels_path)
     labels_map = dict(zip(labels_df['filename'], labels_df['faulty_car'].astype(str).str.zfill(2)))
@@ -68,7 +68,7 @@ def main():
         "training_cases": features_df['case_id'].unique().tolist()
     }
     
-    models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'models'))
+    models_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'models', 'acv'))
     os.makedirs(models_dir, exist_ok=True)
     
     artifact_path = os.path.join(models_dir, 'acv_model_artifact.pkl')
