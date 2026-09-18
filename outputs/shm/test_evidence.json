@@ -1,0 +1,438 @@
+[
+  {
+    "file_id": "test01.csv",
+    "prediction": 0.03226951331565471,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": 7.117219790427182,
+      "stress_rms": 8.702383899407618,
+      "stress_std": 5.007660929757586,
+      "cycle_count": 178792.5,
+      "half_cycle_fraction": 7.550652292461931e-05,
+      "amplitude_q90": 0.9268936499999998,
+      "amplitude_q99": 2.06637785,
+      "amplitude_max": 24.2289175,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 23723538.891581398
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "e401722144b28673b956c83bcb6f6e98fbc2b6f20238519545a6c9a9c7772a1b",
+      "seconds": 0.3757008340326138,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test02.csv",
+    "prediction": 0.8218701226953998,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -14.257138256935479,
+      "stress_rms": 20.96225277350254,
+      "stress_std": 15.367174433279587,
+      "cycle_count": 167599.0,
+      "half_cycle_fraction": 6.56328498380062e-05,
+      "amplitude_q90": 0.9779145000000007,
+      "amplitude_q99": 2.9443752549999993,
+      "amplitude_max": 46.499877,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 604213259.3965806
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "e4570127634945420163676a4f143a81fb0572a47e646f09cc1cb8d433047be6",
+      "seconds": 0.32020391599508,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test03.csv",
+    "prediction": 0.436436343835524,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -4.617875549792845,
+      "stress_rms": 11.698626406325806,
+      "stress_std": 10.748631782762347,
+      "cycle_count": 163651.0,
+      "half_cycle_fraction": 7.33267746607109e-05,
+      "amplitude_q90": 0.8142208,
+      "amplitude_q99": 2.7679258,
+      "amplitude_max": 48.1006795,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 320854376.5566728
+    },
+    "warnings": [
+      "Outside observed training range: amplitude_max"
+    ],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "3b9c801f4d371fd2d0b75c1cb09bdaf975dc6b0338d67a1b4a24739daa99e8bb",
+      "seconds": 0.3357229169923812,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test04.csv",
+    "prediction": 0.029057028083914062,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": 3.1848878744732776,
+      "stress_rms": 5.754033303630185,
+      "stress_std": 4.792221664981534,
+      "cycle_count": 180528.0,
+      "half_cycle_fraction": 0.00010524683151644067,
+      "amplitude_q90": 0.7631994999999998,
+      "amplitude_q99": 1.5731682500000002,
+      "amplitude_max": 21.858534,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 21361820.027452815
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "167f57227bf2502b91cafd2d6a0354080586bdaefde9be63c9ebfe63c35efdf2",
+      "seconds": 0.3289107499876991,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test05.csv",
+    "prediction": 0.03575081302279085,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -0.6301733712701525,
+      "stress_rms": 3.7516702999392804,
+      "stress_std": 3.6983660664661766,
+      "cycle_count": 183151.0,
+      "half_cycle_fraction": 5.459975648508608e-05,
+      "amplitude_q90": 0.8716201499999996,
+      "amplitude_q99": 2.1195253999999997,
+      "amplitude_max": 20.869989,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 26282881.76693333
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "4c0a1e7431ba584b921456a4e6a399b24fa5865a36c6142f1d74e72e0a153f99",
+      "seconds": 0.3383567089913413,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test06.csv",
+    "prediction": 0.4408550987689962,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": 6.477563622564324,
+      "stress_rms": 12.708980913106135,
+      "stress_std": 10.934320526001027,
+      "cycle_count": 158237.0,
+      "half_cycle_fraction": 5.055707577873696e-05,
+      "amplitude_q90": 0.8163464,
+      "amplitude_q99": 3.3801854999999996,
+      "amplitude_max": 41.1107125,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 324102907.2516102
+    },
+    "warnings": [
+      "Outside observed training range: cycle_count"
+    ],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "b5beba36a50866a644540762ec50d8fb9becf61004842b48bcbe084982806c40",
+      "seconds": 0.3026713749859482,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test07.csv",
+    "prediction": 0.16086738678349785,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": 0.6171598070967669,
+      "stress_rms": 10.636075861830053,
+      "stress_std": 10.618155372337899,
+      "cycle_count": 168925.0,
+      "half_cycle_fraction": 7.103744265206453e-05,
+      "amplitude_q90": 0.70792565,
+      "amplitude_q99": 2.2364491249999996,
+      "amplitude_max": 33.857132,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 118264681.26167801
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "5c6e67518ec299eef8b499b508c9e9d9fbeae30f05cfe627e74676e7dd727457",
+      "seconds": 0.3233083329978399,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test08.csv",
+    "prediction": 0.05389609934890853,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -0.5617311464981725,
+      "stress_rms": 3.738614282686268,
+      "stress_std": 3.6961730037647866,
+      "cycle_count": 174621.0,
+      "half_cycle_fraction": 6.299356892928113e-05,
+      "amplitude_q90": 0.87162025,
+      "amplitude_q99": 2.1790506,
+      "amplitude_max": 29.010072,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 39622729.865841635
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "f193b4246063d7b584cba78ce5273229ff66a9d126efb55a6f3e092bf7c8fbd4",
+      "seconds": 0.33252258296124637,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test09.csv",
+    "prediction": 0.06408057439694868,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -1.5683830373405732,
+      "stress_rms": 5.595585114259785,
+      "stress_std": 5.37128917664168,
+      "cycle_count": 179091.5,
+      "half_cycle_fraction": 6.421298609928445e-05,
+      "amplitude_q90": 0.8716201000000001,
+      "amplitude_q99": 2.281093908775,
+      "amplitude_max": 29.445881999999997,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 47110038.01112157
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "8e76bd32be11d5ee70ff7ba31a29a0921c49ad10a752af5230f39a20187a2259",
+      "seconds": 0.32670245901681483,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test10.csv",
+    "prediction": 0.05793327533033064,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -1.0877783666368184,
+      "stress_rms": 9.164084191006447,
+      "stress_std": 9.099295427940078,
+      "cycle_count": 177709.5,
+      "half_cycle_fraction": 4.220370886193479e-05,
+      "amplitude_q90": 0.5995044500000002,
+      "amplitude_q99": 1.51789480405,
+      "amplitude_max": 26.414344,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 42590735.62628062
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "a6edd198d9400b8dfcf59aa1054ef9ad6d3e0681194c7c392f845929af96f2ee",
+      "seconds": 0.3282832080149092,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test11.csv",
+    "prediction": 0.05041637239304487,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -9.051436195178162,
+      "stress_rms": 11.894655168116401,
+      "stress_std": 7.7171448329687875,
+      "cycle_count": 178307.5,
+      "half_cycle_fraction": 5.3278745986568146e-05,
+      "amplitude_q90": 0.8716205000000002,
+      "amplitude_q99": 1.7411142212500001,
+      "amplitude_max": 23.1298235,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 37064543.22813155
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "46f1a7bd757b972b1568217e5f497617cd71f45f3ce442b610481fc55fc4aeac",
+      "seconds": 0.32905616698553786,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test12.csv",
+    "prediction": 0.19344232525550353,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -0.5460959175169775,
+      "stress_rms": 10.763594196156415,
+      "stress_std": 10.749732055656242,
+      "cycle_count": 165616.0,
+      "half_cycle_fraction": 7.245676746208096e-05,
+      "amplitude_q90": 0.6526529749999992,
+      "amplitude_q99": 2.291723217,
+      "amplitude_max": 35.049763,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 142212759.19431287
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "de57cf236af08ee5a9f4064860038f6df548fac5b4a8fb4af893ee2057498b45",
+      "seconds": 0.3120919580105692,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test13.csv",
+    "prediction": 0.43631065188579743,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -6.810562619088098,
+      "stress_rms": 12.67278253177646,
+      "stress_std": 10.687172400086865,
+      "cycle_count": 167096.5,
+      "half_cycle_fraction": 0.00010472990158381534,
+      "amplitude_q90": 0.7079255,
+      "amplitude_q99": 2.4022704999999998,
+      "amplitude_max": 38.950795,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 320761971.75872844
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "dbdecc3ca3ed758ef2a9e057a195fdecbc194e096aad7b2c4e454f84ca4f7d49",
+      "seconds": 0.31364566599950194,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test14.csv",
+    "prediction": 0.49414759383570483,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -0.006557155497828633,
+      "stress_rms": 10.754071507109375,
+      "stress_std": 10.754069508038967,
+      "cycle_count": 162115.0,
+      "half_cycle_fraction": 7.402152792770564e-05,
+      "amplitude_q90": 0.7631990999999998,
+      "amplitude_q99": 3.0485444849999994,
+      "amplitude_max": 39.811786999999995,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 363281886.09078395
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "23fa6b6c82ac78fc0abe69cc0b18a3ac3b75a08ef4455b6959afeefc66103d95",
+      "seconds": 0.3191534589859657,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test15.csv",
+    "prediction": 0.05464309709997372,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": -11.625698537946768,
+      "stress_rms": 12.567108712175138,
+      "stress_std": 4.772353181441061,
+      "cycle_count": 166073.0,
+      "half_cycle_fraction": 7.225738079037532e-05,
+      "amplitude_q90": 0.5463570000000001,
+      "amplitude_q99": 1.4711245000000002,
+      "amplitude_max": 27.317853,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 40171899.2947689
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "85db297d37f3704d7bd50d2fa9dac44df503d71973c43f62742010d139d2d715",
+      "seconds": 0.30800887499935925,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  },
+  {
+    "file_id": "test16.csv",
+    "prediction": 0.0661476017787599,
+    "evidence": {
+      "n_samples": 581120.0,
+      "stress_mean": 1.432135043756625,
+      "stress_rms": 5.346796077195622,
+      "stress_std": 5.151428686059693,
+      "cycle_count": 182169.5,
+      "half_cycle_fraction": 6.861741400179503e-05,
+      "amplitude_q90": 0.7610734999999993,
+      "amplitude_q99": 2.06637761525,
+      "amplitude_max": 26.144355500000003,
+      "effective_exponent": 5.0,
+      "calibrated_scale": 1.3602318550840644e-09,
+      "rainflow_damage_proxy": 48629652.01963446
+    },
+    "warnings": [],
+    "metadata": {
+      "model": "physics_5",
+      "feature_version": "shm-rainflow-v1",
+      "sha256": "bf785c6e9e5d645cc8a96152df364570251facfdf43b448cf53fe2a2721a6e15",
+      "seconds": 0.3379925419576466,
+      "stress_units": "source units (unspecified)",
+      "interpretation": "Damage for this recording; not remaining life or a maintenance deadline."
+    }
+  }
+]

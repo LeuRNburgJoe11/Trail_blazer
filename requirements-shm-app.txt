@@ -1,0 +1,2 @@
+-r requirements-shm.txt
+streamlit==1.49.1

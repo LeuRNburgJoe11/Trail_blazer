@@ -1,0 +1,22 @@
+{
+  "n_test_files": 16,
+  "app_cli_exports_identical": true,
+  "frozen_artifact_unchanged": true,
+  "no_exact_train_test_duplicates": true,
+  "prediction_sha256": "36d80942946eb362ce90fa879ff6e924b4bf7121b1f7824abca5fb9c331c11f7",
+  "sample_counts": [
+    581120
+  ],
+  "median_inference_seconds": 0.31422339598066173,
+  "max_inference_seconds": 0.36334341700421646,
+  "total_inference_seconds": 5.100292917981278,
+  "warnings": {
+    "test03.csv": [
+      "Outside observed training range: amplitude_max"
+    ],
+    "test06.csv": [
+      "Outside observed training range: cycle_count"
+    ]
+  },
+  "test_labels_available": false
+}

@@ -1,0 +1,9 @@
+# Local Python caches and SHM reproducible data/build products.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+data/SHM/Train/
+data/SHM/Test/
+data/SHM/Train_Labels.csv
+outputs/shm/cache/
