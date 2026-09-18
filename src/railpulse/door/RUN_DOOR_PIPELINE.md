@@ -1,5 +1,10 @@
 # Run the Door Pipeline
 
+For the official three-column submission and all four subsystems, use
+`python scripts/run_all.py`; see [the integration guide](../../../docs/INTEGRATION.md).
+The legacy command below produces a **six-column diagnostic export**, not the
+official `start_time,end_time,prediction` submission format.
+
 Run these commands from the **repository root** -- every path below is relative to it,
 not to this file's directory.
 
