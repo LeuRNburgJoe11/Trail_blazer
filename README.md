@@ -1,6 +1,14 @@
 # Trail_blazer
 This is Team TrailBlazer's submission for LTA x Nebula Hackathon. Our solution, known as Railpulse, provides advanced condition-monitoring and predictive maintenance pipelines.
 
+## Structural Health Monitoring
+
+The SHM implementation predicts cumulative fatigue damage from a headerless stress CSV.
+It includes verified data download, rainflow features, nested model evaluation, a frozen
+model, exact prediction exports, and an upload/download panel. See
+[the SHM implementation and run guide](docs/SHM.md) for setup, measured validation results,
+limitations, and integration instructions.
+
 ## ACV Refrigerant Leakage Localisation
 This module contains the backend data-science pipeline for identifying air conditioning ventilation (ACV) refrigerant leakage faults from train telemetry. 
 
