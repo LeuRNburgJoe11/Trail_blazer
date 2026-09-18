@@ -1,0 +1,7 @@
+case_id,true_faulty_car,predicted_ranked_cars,true_car_rank,rank_decay_score,top_prediction
+acv_case_01.xlsx,01,02|01|05|06|07|08|03|04,2,0.875,02
+acv_case_02.xlsx,02,02|04|03|01|05|06|07|08,1,1.0,02
+acv_case_03.xlsx,03,01|03|04|05|08|02|06|07,2,0.875,01
+acv_case_04.xlsx,01,02|04|01|03|05|06|07|08,3,0.75,02
+acv_case_05.xlsx,04,01|02|03|04|05|06|07|08,4,0.625,01
+acv_case_06.xlsx,06,01|05|07|08|02|03|04|06,8,0.125,01
