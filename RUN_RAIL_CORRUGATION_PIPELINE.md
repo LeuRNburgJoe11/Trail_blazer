@@ -44,6 +44,13 @@ Each recording must be a headerless CSV with 129 columns: one speed-sensor colum
 This repository exposes the rail pipeline as Python functions rather than a standalone command-line script. Run the following from the repository root:
 
 ```powershell
+$base = "data/Rail_Corrugation"
+if (!(Test-Path "$base/Train_Labels.csv") -or !(Test-Path "$base/Train") -or !(Get-ChildItem "$base/Train" -Filter '*.csv' -File -ErrorAction SilentlyContinue)) {
+  throw "Rail training data is missing. Add data/Rail_Corrugation/Train_Labels.csv and CSV recordings under data/Rail_Corrugation/Train/."
+}
+if (!(Test-Path "$base/Test") -or !(Get-ChildItem "$base/Test" -Filter '*.csv' -File -ErrorAction SilentlyContinue)) {
+  throw "Rail test data is missing. Add CSV recordings under data/Rail_Corrugation/Test/."
+}
 New-Item -ItemType Directory -Force outputs | Out-Null
 $env:PYTHONPATH = "src"
 @'
