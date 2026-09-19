@@ -1,4 +1,8 @@
 # Trail_blazer
+
+**React dashboard + RailPulser:** follow the [teammate setup guide](docs/DASHBOARD_SETUP.md)
+on `agentic-addition`. Install `requirements-dashboard.txt`; the guide covers
+optional API providers, missing Door/Rail assets, startup and upload tests.
 This is Team TrailBlazer's submission for LTA x Nebula Hackathon. Our solution, known as Railpulse, provides advanced condition-monitoring and predictive maintenance pipelines.
 
 See the [19 September architecture audit](docs/ARCHITECTURE_AUDIT.md) for verified

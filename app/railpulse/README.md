@@ -1,5 +1,10 @@
 # RailPulse
 
+**Current React dashboard setup:** use [DASHBOARD_SETUP.md](../../docs/DASHBOARD_SETUP.md).
+It supersedes the historical installation commands below. Do **not** use
+`pip install -e .` for the integrated dashboard. Door/SHM use canonical subprocess
+inference, while ACV/Rail use the nested pipelines; SHM is not stubbed in this UI.
+
 The dashboard now includes subsystem-scoped chat and an Assistant workspace.
 See [integration startup and boundaries](../../docs/DASHBOARD_ASSISTANT_INTEGRATION.md).
 Use the repository `.venv` for the backend; the assistant is isolated from this

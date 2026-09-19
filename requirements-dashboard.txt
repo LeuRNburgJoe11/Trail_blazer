@@ -1,0 +1,10 @@
+# React dashboard backend + local RailPulser retrieval (no API key required).
+# Use a clean Python 3.11–3.13 virtual environment, without system site packages.
+-r requirements-shm.txt
+openpyxl==3.1.5
+fastapi==0.135.1
+uvicorn==0.41.0
+python-multipart==0.0.22
+# TestClient / integration smoke tests.
+httpx==0.28.1
+# For optional provider support, ALSO install requirements-assistant.txt.

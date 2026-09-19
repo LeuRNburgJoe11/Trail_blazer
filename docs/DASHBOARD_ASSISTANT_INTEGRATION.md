@@ -2,6 +2,10 @@
 
 ## Run locally
 
+For a fresh clone, follow [teammate installation and acceptance tests](DASHBOARD_SETUP.md)
+first. `requirements-dashboard.txt` includes the upload dependency; Door and Rail
+also need the generated assets documented there.
+
 Use the repository virtual environment, not an editable installation of the nested
 duplicate `railpulse` package. From the repository root:
 
