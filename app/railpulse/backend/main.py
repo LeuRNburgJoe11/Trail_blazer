@@ -221,8 +221,6 @@ def _headline(indicators: dict) -> str:
         parts.append(f"warmest car {indicators['warmest_share']:.0f}% of window")
     if indicators.get("persistent_run_minutes"):
         parts.append(f"{indicators['persistent_run_minutes']:.0f} min longest warm run")
-    if indicators.get("duty_cycle") is not None:
-        parts.append(f"duty cycle {indicators['duty_cycle']:.0f}%")
     return "; ".join(parts) if parts else "No comparable telemetry in this file"
 
 
@@ -231,7 +229,6 @@ def _acv_summary(car: str, tier: str, indicators: dict, fleet_median) -> str:
     residual = indicators.get("peer_residual_mean")
     warmest = indicators.get("warmest_share")
     run = indicators.get("persistent_run_minutes")
-    duty = indicators.get("duty_cycle")
     if residual is None:
         return f"Car {car} has no comparable cabin-temperature telemetry in this file."
     direction = "warmer than" if residual > 0 else "cooler than" if residual < 0 else "level with"
@@ -241,8 +238,6 @@ def _acv_summary(car: str, tier: str, indicators: dict, fleet_median) -> str:
     text.append(".")
     if run:
         text.append(f" Its longest unbroken warm stretch is {run:.0f} minutes.")
-    if duty is not None:
-        text.append(f" Cooling duty cycle {duty:.0f}%.")
     if tier == "primary":
         text.append(" This is the strongest peer-relative deviation in the consist, which is why it ranks first.")
     elif tier == "co_suspect":

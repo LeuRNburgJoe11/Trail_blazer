@@ -111,7 +111,7 @@ function AcvFile({ row, validation }) {
         onSelect={setSelected}
       />
 
-      <AcvCarDetail car={selectedCar} series={row.series} context={context} />
+      <AcvCarDetail car={selectedCar} series={row.series} />
 
       <ConsistChecklist
         cars={consist.rows}

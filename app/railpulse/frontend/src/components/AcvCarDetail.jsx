@@ -25,7 +25,7 @@ function Tile({ label, value, sub, tone }) {
   );
 }
 
-export default function AcvCarDetail({ car, series, context }) {
+export default function AcvCarDetail({ car, series }) {
   if (!car) return null;
   const indicators = car.indicators ?? {};
   const tier = car.tier ?? "nominal";
@@ -68,11 +68,6 @@ export default function AcvCarDetail({ car, series, context }) {
           value={indicators.persistent_run_minutes == null ? "—" : `${indicators.persistent_run_minutes.toFixed(0)} min`}
           sub="unbroken above peers"
           tone={tone}
-        />
-        <Tile
-          label="Cooling duty cycle"
-          value={indicators.duty_cycle == null ? "—" : `${indicators.duty_cycle.toFixed(0)}%`}
-          sub={context?.running_mode ? `mode: ${context.running_mode}` : "time in a cooling mode"}
         />
         <Tile
           label="Ranking score"
