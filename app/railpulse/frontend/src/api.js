@@ -1,21 +1,42 @@
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const BASE_URL = import.meta.env.VITE_API_URL || "";
+
+async function jsonResponse(res) {
+  if (!res.headers.get("content-type")?.includes("application/json")) {
+    throw new Error(
+      "The API returned a webpage instead of JSON. Restart the dashboard frontend and backend; check the /api proxy.",
+    );
+  }
+  const value = await res.json();
+  if (!res.ok)
+    throw new Error(
+      typeof value.detail === "string"
+        ? value.detail
+        : `Request failed (${res.status})`,
+    );
+  return value;
+}
+
+export const assistantContext = () =>
+  fetch(`${BASE_URL}/api/assistant/context`).then(jsonResponse);
+export const askAssistant = (body, signal) =>
+  fetch(`${BASE_URL}/api/assistant/ask`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  }).then(jsonResponse);
 
 async function postFiles(path, files) {
   const form = new FormData();
   for (const f of files) form.append("files", f);
 
   const res = await fetch(`${BASE_URL}${path}`, { method: "POST", body: form });
-  if (!res.ok) {
-    const detail = await res.json().catch(() => ({}));
-    throw new Error(detail.detail || `Request failed (${res.status})`);
-  }
-  return res.json();
+  return jsonResponse(res);
 }
 
 export async function getStatus() {
   const res = await fetch(`${BASE_URL}/api/status`);
-  if (!res.ok) throw new Error("Could not reach the backend");
-  return res.json();
+  return jsonResponse(res);
 }
 
 export const predictDoor = (files) => postFiles("/api/door/predict", files);

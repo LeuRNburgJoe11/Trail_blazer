@@ -15,6 +15,18 @@ The separate React/FastAPI prototype in [`app/railpulse/`](app/railpulse/README.
 is preserved for future UI integration. It has its own duplicate Python package and
 model registry; it is not yet wired to the audited four-subsystem decision layer.
 
+The [evidence assistant](docs/ASSISTANT.md) is available in `app/main.py`: local
+question answering without a key, source cards, metric explanations and optional
+LangChain-based evidence selection. Its backend is reusable by the dashboard team.
+
+A standalone [React agent-interface prototype](app/assistant-ui/README.md) adds
+the model picker, OpenAI/Anthropic key connection, source notebook and scoped chat.
+It runs on port 5174 with the local canonical assistant API on port 8766.
+
+The [engineering assistant guide](docs/ENGINEERING_ASSISTANT.md) covers attributed
+engineer notes, bounded instructions, contextual definitions and review briefings.
+Restart an already-running backend after updating to this schema-2 interface.
+
 ## Run all four subsystems
 
 ```bash

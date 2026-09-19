@@ -1,0 +1,92 @@
+[
+  {
+    "group": "Terms explained",
+    "question": "What does DCSR mean?",
+    "help": "Retrieve the Door header glossary, with source lines and switch definitions."
+  },
+  {
+    "group": "Terms explained",
+    "question": "Explain the S-N curve",
+    "help": "Retrieve the stress-life relationship from the SHM kit; material constants are not operational limits."
+  },
+  {
+    "group": "Terms explained",
+    "question": "Why do ripples form on the rail?",
+    "help": "Search corrugation physics by meaning as well as keywords, without inferring the cause of a particular finding."
+  },
+  {
+    "group": "Terms explained",
+    "question": "How does refrigerant transport heat?",
+    "help": "Retrieve ACV background; the kit is not a complete thermodynamics manual."
+  },
+  {
+    "group": "Operational review",
+    "question": "Prepare an inspection briefing",
+    "help": "Assemble review candidates, warnings and checks for an engineer. This does not approve a repair or dispatch decision."
+  },
+  {
+    "group": "Operational review",
+    "question": "Prepare a handover",
+    "help": "Summarise the selected evidence. Add observations under Instructions; they stay attributed and unverified."
+  },
+  {
+    "group": "Operational review",
+    "question": "Show quality warnings",
+    "help": "Find missing telemetry and applicability warnings before interpreting model findings."
+  },
+  {
+    "group": "Operational review",
+    "question": "Show findings needing review",
+    "help": "Use the advisory review queue. Its order is not fault severity or a maintenance deadline."
+  },
+  {
+    "group": "Operational review",
+    "question": "What am I looking at?",
+    "help": "Select a recording first to understand its output and what evidence to verify next."
+  },
+  {
+    "group": "Model & evaluation",
+    "question": "How does this model work?",
+    "help": "Choose a subsystem to see its input checks, features, model and output. Use detailed mode for a longer walkthrough."
+  },
+  {
+    "group": "Model & evaluation",
+    "question": "Explain validation metrics",
+    "help": "Understand what was measured. Validation, software tests and recording quality are different checks."
+  },
+  {
+    "group": "Model & evaluation",
+    "question": "Why was this model selected?",
+    "help": "See stored model comparisons and the limitations of the validation sample."
+  },
+  {
+    "group": "Terms explained",
+    "question": "What does macro F1 mean?",
+    "help": "Learn why Rail gives Normal, Side I and Side II equal weight."
+  },
+  {
+    "group": "Terms explained",
+    "question": "Define MAPE",
+    "help": "Understand relative prediction error and the SHM scoring formula."
+  },
+  {
+    "group": "Terms explained",
+    "question": "Explain rainflow counting",
+    "help": "Understand stress cycles and the SHM damage proxy—not a remaining-life forecast."
+  },
+  {
+    "group": "Terms explained",
+    "question": "Define precision and recall",
+    "help": "Distinguish false alarms from missed reference examples."
+  },
+  {
+    "group": "Data limits",
+    "question": "What information is missing for remaining life?",
+    "help": "Identify missing history, exposure and approved limits. Expect a limitation explanation, not a life estimate."
+  },
+  {
+    "group": "Data limits",
+    "question": "What is our overall test score?",
+    "help": "Understand why official test performance stays unknown without organiser-held labels."
+  }
+]
