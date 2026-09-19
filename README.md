@@ -1,5 +1,8 @@
 # Trail_blazer
 
+**Docker:** `docker compose up --build -d`, then open http://127.0.0.1:5173.
+See [Docker setup, model assets and batch workflows](docs/DOCKER.md).
+
 **React dashboard + RailPulser:** follow the [teammate setup guide](docs/DASHBOARD_SETUP.md)
 on `agentic-addition`. Install `requirements-dashboard.txt`; the guide covers
 optional API providers, missing Door/Rail assets, startup and upload tests.

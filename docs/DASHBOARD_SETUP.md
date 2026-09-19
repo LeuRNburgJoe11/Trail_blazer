@@ -1,5 +1,8 @@
 # Teammate setup: dashboard + RailPulser
 
+Prefer containers? Follow [Docker setup](DOCKER.md) instead; it does not require
+Python or Node on your host. Door/Rail asset preparation is still required.
+
 Use the `agentic-addition` branch and the **integrated** UI on port 5173.
 The standalone prototype on 5174/8766 is not needed.
 
