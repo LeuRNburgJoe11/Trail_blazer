@@ -1,20 +1,38 @@
-FROM python:3.11-slim AS runtime
+# syntax=docker/dockerfile:1
+FROM python:3.13-slim AS runtime
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PIP_NO_CACHE_DIR=1 \
+    MPLCONFIGDIR=/tmp/matplotlib HOME=/home/railpulse
+WORKDIR /workspace
+COPY requirements*.txt ./
+RUN python -m pip install -r requirements-dashboard.txt -r requirements-assistant.txt \
+    && python -m pip check \
+    && groupadd --gid 10001 railpulse \
+    && useradd --uid 10001 --gid railpulse --create-home railpulse
+COPY --chown=railpulse:railpulse src ./src
+COPY --chown=railpulse:railpulse app ./app
+COPY --chown=railpulse:railpulse scripts ./scripts
+COPY --chown=railpulse:railpulse configs ./configs
+COPY --chown=railpulse:railpulse references ./references
+COPY --chown=railpulse:railpulse docs ./docs
+COPY --chown=railpulse:railpulse models ./models
+COPY --chown=railpulse:railpulse outputs ./outputs
+COPY --chown=railpulse:railpulse tests ./tests
+COPY --chown=railpulse:railpulse pytest.ini README.md ./
+RUN mkdir -p /workspace/data /workspace/run-output /workspace/app/railpulse/registry \
+    && chown -R railpulse:railpulse /workspace/data /workspace/run-output /workspace/app/railpulse/registry
+USER railpulse
+WORKDIR /workspace/app/railpulse
+EXPOSE 8000
+CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--no-access-log"]
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PIP_NO_CACHE_DIR=1
+FROM node:22-alpine AS frontend-build
+WORKDIR /frontend
+COPY app/railpulse/frontend/package*.json ./
+RUN npm ci
+COPY app/railpulse/frontend/ ./
+RUN npm run build
 
-WORKDIR /app
-
-COPY requirements-all.txt requirements-shm.txt requirements-shm-app.txt ./
-RUN pip install --no-cache-dir -r requirements-all.txt -r requirements-shm-app.txt
-
-COPY app ./app
-COPY src ./src
-COPY configs/dataset_lock.json ./configs/dataset_lock.json
-COPY outputs/combined/architecture-audit-final/models ./outputs/combined/architecture-audit-final/models
-COPY references/Rail_Corrugation/images ./references/Rail_Corrugation/images
-
-ENV PYTHONPATH=/app/src
-
-CMD ["sh", "-c", "streamlit run app/main.py --server.address=0.0.0.0 --server.port=${PORT:-8080} --server.headless=true"]
+FROM nginxinc/nginx-unprivileged:stable-alpine AS dashboard
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=frontend-build /frontend/dist /usr/share/nginx/html
+EXPOSE 8080

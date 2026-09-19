@@ -13,14 +13,14 @@
 
 ## Architecture
 
-- **Single inference path.** Training, validation, batch prediction, and the UI all call the same canonical inference code, so there is no train/serve divergence.
+- **Explicit inference boundaries.** The canonical batch workflow uses its frozen bundle. The React dashboard uses canonical Door/SHM inference, a dashboard ACV ranker and a separate Rail registry model; their validation must not be presented as interchangeable.
 - **Frozen, checksum-verified model bundles** with runtime metadata. Uploads never trigger retraining or model selection.
 - **Contract validation on every export:** Door timestamps, native two-digit ACV car IDs, Rail class names, SHM numeric constraints, exact file coverage, and CSV schemas.
 - **Non-invasive diagnostics.** The dashboard surfaces evidence, warnings, coverage, uncertainty, and review priorities without modifying the official predictions. Outputs are review candidates, not maintenance directives.
 
 ## Stack and deployment
 
-Python 3.11 with NumPy, pandas, SciPy, scikit-learn, joblib, rainflow, and openpyxl. Streamlit provides upload, analysis, review, and export (per-subsystem CSVs plus a compliant predictions ZIP). The app is containerised and deployed through Cloud Build and Artifact Registry to Cloud Run: **[URL]**
+React provides the dashboard and RailPulser interface, with a FastAPI backend running Python 3.13 in Docker. Numerical pipelines use NumPy, pandas, SciPy, scikit-learn, joblib, rainflow and openpyxl. The dashboard exports per-subsystem CSVs; the canonical batch workflow creates the validated predictions ZIP. Cloud Run deployment is planned, not yet verified: **[URL pending deployment]**.
 
 ## Results
 

@@ -20,6 +20,8 @@ proxies `/api` to the private backend. Port 8000 is not published. The assistant
 retains its localhost host/origin restrictions; do not change the public port
 without updating those restrictions. Stop any previous local Vite process on
 the selected host port first.
+Only ports 5173 and 5174 are currently allowed by the assistant's browser-origin
+policy. Other values can load the UI but will reject chat requests.
 Provider SDKs are included. Enter your key and consent in the UI; do not bake keys
 into images or pass them as Docker build arguments. API use needs internet access.
 
