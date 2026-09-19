@@ -4,13 +4,18 @@ import Dropzone from "./components/Dropzone";
 import DoorResults from "./components/DoorResults";
 import AcvResults from "./components/AcvResults";
 import RailResults from "./components/RailResults";
+import Glossary, { Term } from "./components/Glossary";
+import { TERMS } from "./terms";
+import Icon from "./components/Icon";
 import { getStatus, predictDoor, predictAcv, predictRail, downloadCsv } from "./api";
 
+// `icon` pairs every subsystem label with a glyph, so a tab is not identified
+// by an acronym alone -- the acronyms themselves are defined in the glossary.
 const SUBSYSTEMS = [
-  { key: "door", label: "Door", accept: ".csv", hint: "Continuous door-controller stream (.csv)" },
-  { key: "acv", label: "ACV", accept: ".xlsx", hint: "ACV case file (.xlsx)" },
-  { key: "rail", label: "Rail corrugation", accept: ".csv", hint: "1-second axle-box recording (.csv) -- select all at once" },
-  { key: "shm", label: "SHM", disabled: true, hint: "Not implemented yet" },
+  { key: "door", label: "Door", icon: "door", accept: ".csv", hint: "Continuous door-controller stream (.csv)" },
+  { key: "acv", label: "ACV", icon: "acv", term: "ACV", accept: ".xlsx", hint: "ACV case file (.xlsx)" },
+  { key: "rail", label: "Rail corrugation", icon: "rail", accept: ".csv", hint: "1-second axle-box recording (.csv) -- select all at once" },
+  { key: "shm", label: "SHM", icon: "shm", term: "SHM", disabled: true, hint: "Not implemented yet" },
 ];
 
 const PREDICTORS = { door: predictDoor, acv: predictAcv, rail: predictRail };
@@ -57,7 +62,10 @@ export default function App() {
   return (
     <div className="page">
       <header className="header">
-        <h1>RailPulse</h1>
+        <div className="header__row">
+          <h1>RailPulse</h1>
+          <Glossary />
+        </div>
         <p className="subtitle">Upload the held-out test set for a subsystem and see which files or cycles are flagged with a fault.</p>
       </header>
 
@@ -69,12 +77,24 @@ export default function App() {
             disabled={s.disabled}
             onClick={() => switchSubsystem(s.key)}
           >
+            <Icon name={s.icon} size={15} />
             {s.label}
           </button>
         ))}
       </nav>
 
       <main className="card">
+        <h2 className="subsystem">
+          <Icon name={current.icon} size={19} />
+          {current.term ? (
+            <>
+              <Term k={current.term} />{" "}
+              <span className="subsystem__expansion">{TERMS[current.term].expansion}</span>
+            </>
+          ) : (
+            current.label
+          )}
+        </h2>
         {current.disabled ? (
           <p className="muted">This subsystem isn't implemented yet.</p>
         ) : (

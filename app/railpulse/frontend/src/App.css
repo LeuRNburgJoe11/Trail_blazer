@@ -251,3 +251,565 @@ th {
   text-align: right;
   color: var(--text-muted);
 }
+
+/* ==========================================================================
+   Shared status colour code -- identical in every subsystem module.
+   Black  = no anomaly detected.
+   Red    = anomaly detected.
+   Blue stays reserved for interactive controls so it never reads as a verdict.
+   ========================================================================== */
+:root {
+  --status-clear: #16150f;
+  --status-clear-bg: var(--surface-1);
+  --status-fault: #c11f1f;
+  --status-fault-bg: #fdeceb;
+}
+
+.icon {
+  flex: none;
+  vertical-align: -3px;
+}
+
+/* --- Tabs with subsystem icons ------------------------------------------ */
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+/* --- Acronym tooltip ----------------------------------------------------- */
+.term {
+  position: relative;
+  border-bottom: 1px dotted var(--text-muted);
+  cursor: help;
+}
+
+.term__tip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  z-index: 20;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  width: max-content;
+  max-width: 280px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--text-primary);
+  color: var(--surface-1);
+  font-size: 12px;
+  line-height: 1.45;
+  text-align: left;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.term:hover .term__tip,
+.term:focus .term__tip,
+.term:focus-within .term__tip {
+  display: flex;
+}
+
+.term__tip em {
+  color: #f3c9c9;
+  font-style: normal;
+}
+
+/* --- Glossary panel ------------------------------------------------------ */
+.glossary {
+  position: relative;
+}
+
+.glossary__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.glossary__panel {
+  position: absolute;
+  right: 0;
+  z-index: 15;
+  width: min(420px, 90vw);
+  margin-top: 8px;
+  padding: 1rem 1.15rem;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.glossary__note {
+  margin: 0 0 0.75rem;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.glossary__list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.glossary__item {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: 10px;
+}
+
+.glossary__item dt {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.glossary__item dd {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.glossary__item dd strong {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.glossary__item dd em {
+  color: var(--status-fault);
+  font-style: normal;
+}
+
+/* --- Result blocks ------------------------------------------------------- */
+.result + .result {
+  margin-top: 2rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.result__file {
+  margin: 0 0 0.9rem;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* --- Paired input / output boxes ---------------------------------------- */
+.io {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+@media (max-width: 620px) {
+  .io { grid-template-columns: 1fr; }
+}
+
+.io__box {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  background: var(--surface-2);
+}
+
+.io__box--fault {
+  border-color: var(--status-fault);
+  background: var(--status-fault-bg);
+}
+
+.io__title {
+  margin: 0 0 0.6rem;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.io__fields {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 116px 1fr;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.field__label {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.field__value {
+  margin: 0;
+  font-size: 13px;
+  color: var(--status-clear);
+}
+
+.field__value--fault {
+  color: var(--status-fault);
+  font-weight: 600;
+}
+
+/* --- Train formation diagram -------------------------------------------- */
+.train {
+  margin-top: 0.25rem;
+}
+
+.train__cars {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.train__slot {
+  flex: 1 1 0;
+  min-width: 62px;
+}
+
+.train__car {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 12px 4px 10px;
+  border: 1.5px solid var(--status-clear);
+  border-radius: 8px;
+  background: var(--status-clear-bg);
+  color: var(--status-clear);
+}
+
+.train__car--fault {
+  border-color: var(--status-fault);
+  border-width: 2.5px;
+  background: var(--status-fault-bg);
+  color: var(--status-fault);
+}
+
+.train__car-caption {
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+
+.train__car-number {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+.train__car-value {
+  font-size: 11px;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+
+.train__fault {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 6px;
+  text-align: center;
+  color: var(--status-fault);
+}
+
+.train__fault-label {
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.train__fault-value {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.train__legend {
+  display: flex;
+  gap: 16px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.train__key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.train__swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  border: 1.5px solid var(--status-clear);
+  background: var(--status-clear-bg);
+}
+
+.train__swatch--fault {
+  border-color: var(--status-fault);
+  background: var(--status-fault-bg);
+}
+
+/* Ranking bars follow the same code: only the flagged car is red. */
+.bar-row__fill {
+  background: var(--status-clear);
+  opacity: 0.35;
+}
+
+.bar-row__fill--fault {
+  background: var(--status-fault);
+  opacity: 1;
+}
+
+.note {
+  margin-top: 0.85rem;
+  line-height: 1.5;
+}
+
+/* --- Header and active-subsystem heading -------------------------------- */
+.header__row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.subsystem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 1.1rem;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.subsystem__expansion {
+  font-weight: 400;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Doors panel -- one reviewable finding per cycle
+   ========================================================================== */
+.door__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.status--clear { color: var(--status-clear); }
+.status--fault { color: var(--status-fault); }
+
+.status__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+
+.opt-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+  user-select: none;
+}
+
+.banner--caution {
+  background: var(--surface-2);
+  color: var(--text-secondary);
+  border-left: 3px solid var(--status-fault);
+  margin: 0.75rem 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.cycle {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--status-clear);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  margin-top: 0.75rem;
+  background: var(--surface-1);
+}
+
+.cycle--fault {
+  border-left-color: var(--status-fault);
+  background: var(--status-fault-bg);
+}
+
+.cycle__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cycle__when {
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cycle__arrow { color: var(--text-muted); }
+
+.cycle__meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.cycle__confidence {
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--surface-2);
+  border-radius: 5px;
+  padding: 1px 7px;
+  cursor: help;
+}
+
+.cycle__toggle {
+  margin-left: auto;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.cycle__reason {
+  margin: 0.6rem 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-primary);
+}
+
+.cycle__evidence {
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+}
+
+.interval-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.interval-list li {
+  display: flex;
+  gap: 12px;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.interval-list__time { color: var(--status-fault); font-weight: 500; }
+.interval-list__len { color: var(--text-muted); }
+
+.ratio { font-variant-numeric: tabular-nums; }
+.ratio--high { color: var(--status-fault); font-weight: 600; }
+
+/* --- Current trace chart ------------------------------------------------- */
+.trace {
+  margin: 0 0 1rem;
+}
+
+.trace__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+.trace__grid {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.trace__axis-line {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+}
+
+.trace__axis {
+  fill: var(--text-muted);
+  font-size: 10px;
+}
+
+.trace__envelope {
+  fill: none;
+  stroke: #8a8880;
+  stroke-width: 2;
+  stroke-dasharray: 5 4;
+}
+
+.trace__current {
+  fill: none;
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.trace__label {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.trace__label--muted { fill: #8a8880; }
+
+.trace__crosshair {
+  stroke: var(--text-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+}
+
+.trace__dot-envelope {
+  fill: #8a8880;
+}
+
+.trace__caption {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.trace__readout {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
