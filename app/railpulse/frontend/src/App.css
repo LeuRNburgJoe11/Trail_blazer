@@ -252,6 +252,203 @@ th {
   color: var(--text-muted);
 }
 
+/* --- Rail corrugation dashboard ---------------------------------------- */
+.rail-dashboard {
+  margin: 0 -0.25rem 1.5rem;
+  padding: 1rem 0 0;
+}
+
+.rail-dashboard__intro,
+.rail-dashboard__hero,
+.rail-dashboard__grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.rail-dashboard__intro {
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  color: var(--status-fault);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  margin: 0 0 0.4rem;
+  text-transform: uppercase;
+}
+
+.rail-dashboard h3 {
+  font-size: 25px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.rail-dashboard__lede {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0.45rem 0 0;
+  max-width: 560px;
+}
+
+.rail-dashboard__status {
+  align-items: flex-end;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  gap: 4px;
+  text-align: right;
+}
+
+.rail-dashboard__status strong {
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status-dot {
+  background: #2f7d4a;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px #e7f3e9;
+  height: 7px;
+  margin: 4px 4px 5px 0;
+  width: 7px;
+}
+
+.rail-dashboard__hero {
+  background: #1e2428;
+  border-radius: 10px;
+  color: #f5f1e8;
+  grid-template-columns: minmax(0, 1.5fr) minmax(190px, 0.8fr);
+  overflow: hidden;
+}
+
+.rail-dashboard__diagram {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 230px;
+  padding: 1.25rem;
+}
+
+.rail-dashboard__diagram img {
+  background: #fff;
+  border-radius: 5px;
+  display: block;
+  max-width: 100%;
+  padding: 0.35rem;
+}
+
+.rail-dashboard__legend {
+  display: flex;
+  flex-wrap: wrap;
+  font-size: 11px;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 0.85rem;
+}
+
+.rail-dashboard__legend span {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.legend-swatch {
+  background: #16150f;
+  border-radius: 50%;
+  display: inline-block;
+  height: 8px;
+  width: 8px;
+}
+
+.legend-swatch--fault { background: var(--status-fault); }
+
+.rail-dashboard__facts {
+  border-left: 1px solid rgba(255, 255, 255, 0.13);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.fact {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.13);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0.75rem 0;
+}
+
+.fact:first-child { padding-top: 0; }
+.fact:last-child { border-bottom: 0; padding-bottom: 0; }
+.fact span, .fact small { color: #aeb7b9; font-size: 11px; }
+.fact strong { font-size: 14px; font-weight: 600; }
+
+.rail-dashboard__grid {
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 1rem;
+}
+
+.insight-panel {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  min-height: 205px;
+  padding: 1rem;
+}
+
+.panel-heading {
+  align-items: baseline;
+  display: flex;
+  font-size: 12px;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.panel-heading span { color: var(--text-secondary); }
+.panel-heading strong { font-size: 12px; font-weight: 600; }
+
+.class-bars { display: grid; gap: 0.7rem; }
+.class-bar__meta { display: flex; font-size: 12px; justify-content: space-between; margin-bottom: 4px; }
+.class-bar__meta span { color: var(--text-secondary); }
+.class-bar__meta strong { font-weight: 600; }
+.class-bar__track { background: #dfddd5; border-radius: 3px; height: 7px; overflow: hidden; }
+.class-bar__fill { background: #40413d; border-radius: 3px; display: block; height: 100%; min-width: 7px; }
+.class-bar__fill--fault { background: var(--status-fault); }
+.class-bar__fill--fault-alt { background: var(--pink); }
+
+.panel-note { color: var(--text-muted); font-size: 11px; line-height: 1.45; margin: 1rem 0 0; }
+.validation-score { align-items: baseline; display: flex; gap: 8px; }
+.validation-score strong { font-size: 27px; font-weight: 600; }
+.validation-score span { color: var(--text-muted); font-size: 11px; }
+
+.fold-row { align-items: end; display: flex; gap: 9px; height: 72px; margin-top: 0.7rem; }
+.fold-column { align-items: center; display: flex; flex: 1; flex-direction: column; gap: 4px; height: 100%; justify-content: end; }
+.fold-column span { background: var(--accent); border-radius: 3px 3px 0 0; display: block; min-height: 8px; width: 100%; }
+.fold-column small { color: var(--text-muted); font-size: 10px; }
+
+.batch-counts { display: flex; gap: 0.5rem; }
+.batch-counts > div { background: var(--surface-1); border-radius: 6px; display: flex; flex: 1; flex-direction: column; padding: 0.7rem; }
+.batch-counts strong { font-size: 24px; font-weight: 600; }
+.batch-counts span { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+.batch-count--fault strong { color: var(--status-fault); }
+.batch-count--fault-alt strong { color: var(--pink); }
+
+@media (max-width: 700px) {
+  .page { padding: 1.25rem 0.85rem 3rem; }
+  .card { padding: 1rem; }
+  .rail-dashboard__intro, .rail-dashboard__hero, .rail-dashboard__grid { grid-template-columns: 1fr; }
+  .rail-dashboard__status { align-items: flex-start; text-align: left; }
+  .rail-dashboard__facts { border-left: 0; border-top: 1px solid rgba(255, 255, 255, 0.13); }
+}
+
 /* ==========================================================================
    Shared status colour code -- identical in every subsystem module.
    Black  = no anomaly detected.

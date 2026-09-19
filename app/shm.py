@@ -9,7 +9,7 @@ import streamlit as st
 
 from railpulse.shm.uploads import analyse_uploads
 
-
+ 
 def render_shm_panel(artifact_path=ROOT / "models/shm/model.joblib"):
     st.title("Structural fatigue assessment")
     st.write("Upload stress recordings to estimate cumulative fatigue damage for each recording.")

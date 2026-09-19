@@ -93,6 +93,72 @@ if st.button("Analyse", disabled=not items):
         st.session_state.failures[subsystem] = {"status": "rejected", "error": str(exc),
                                                "filenames": [upload.name for upload in items]}
 
+if subsystem == "rail":
+    st.divider()
+    st.header("Rail corrugation dashboard")
+    st.caption("Side-aware review of 1-second axle-box recordings. Red indicates a model fault candidate; it is not a confirmed maintenance diagnosis.")
+
+    rail_cols = st.columns([1.35, 1, 1])
+    with rail_cols[0]:
+        diagram = ROOT / "references" / "Rail_Corrugation" / "images" / "image2.png"
+        if diagram.is_file():
+            st.image(str(diagram), caption="Axle-box positions used by the rail pipeline", width="stretch")
+        else:
+            st.warning("Rail sensor layout image is unavailable in this checkout.")
+    with rail_cols[1]:
+        st.subheader("Sensor map")
+        st.metric("Channels per recording", "129")
+        st.metric("Sampling window", "10,000 samples / 1 s")
+        st.markdown("**Side I**  · positions 1, 3, 5, 7")
+        st.markdown("**Side II** · positions 2, 4, 6, 8")
+    with rail_cols[2]:
+        labels_path = ROOT / "data" / "Rail_Corrugation" / "Train_Labels.csv"
+        if labels_path.is_file():
+            label_counts = pd.read_csv(labels_path)["label"].value_counts().reindex(
+                ["Normal", "Side I", "Side II"], fill_value=0
+            )
+            st.subheader("Training balance")
+            st.metric("Training recordings", f"{int(label_counts.sum())}")
+            st.bar_chart(label_counts.rename("recordings"), height=170, color="#e45756")
+        else:
+            st.warning("Training labels are unavailable; class balance cannot be shown.")
+
+    run_report = Path(model_directory).parent / "run_summary.json"
+    if run_report.is_file():
+        rail_validation = json.loads(run_report.read_text(encoding="utf-8")).get("validation", {}).get("rail", {})
+        st.subheader("Model evidence")
+        evidence_cols = st.columns(4)
+        evidence_cols[0].metric("Selected model", rail_validation.get("selected_model", "Unavailable"))
+        evidence_cols[1].metric("Nested CV macro F1", f"{rail_validation.get('nested_selection_mean_macro_f1', float('nan')):.3f}")
+        evidence_cols[2].metric("Pooled OOF macro F1", f"{rail_validation.get('candidates', {}).get('pooled_spatial', {}).get('pooled_oof_macro_f1', float('nan')):.3f}")
+        evidence_cols[3].metric("CV folds", len(rail_validation.get("candidates", {}).get("pooled_spatial", {}).get("fold_macro_f1", [])))
+        fold_scores = rail_validation.get("candidates", {}).get("pooled_spatial", {}).get("fold_macro_f1", [])
+        if fold_scores:
+            st.line_chart(pd.Series(fold_scores, index=[f"Fold {index}" for index in range(1, len(fold_scores) + 1)], name="macro F1"), height=180)
+        st.caption(rail_validation.get("limitations", "Validation evidence is unavailable."))
+    else:
+        st.info("Run evidence is unavailable for this model directory. Live predictions can still be reviewed after analysis.")
+
+    rail_export = st.session_state.exports.get("rail")
+    if rail_export:
+        rail_predictions = pd.read_csv(io.BytesIO(rail_export))
+        distribution = rail_predictions["prediction"].value_counts().reindex(
+            ["Normal", "Side I", "Side II"], fill_value=0
+        )
+        st.subheader("Current batch")
+        result_cols = st.columns(4)
+        result_cols[0].metric("Files analysed", len(rail_predictions))
+        result_cols[1].metric("Normal", int(distribution["Normal"]))
+        result_cols[2].metric("Side I candidates", int(distribution["Side I"]))
+        result_cols[3].metric("Side II candidates", int(distribution["Side II"]))
+        st.bar_chart(distribution.rename("files"), height=180, color="#f2c14e")
+        flagged = rail_predictions[rail_predictions["prediction"] != "Normal"]
+        if flagged.empty:
+            st.success("No corrugation candidates in the current batch.")
+        else:
+            st.warning(f"{len(flagged)} file(s) require rail-side review.")
+            st.dataframe(flagged, hide_index=True, width="stretch")
+
 for name, failure in st.session_state.failures.items():
     st.error(f"{name.upper()} analysis rejected: {failure['error']}")
     st.caption("No export is available for the rejected subsystem batch. Fix the input/model issue and retry; other subsystem results are unchanged.")

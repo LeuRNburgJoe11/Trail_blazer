@@ -4,6 +4,7 @@ import Dropzone from "./components/Dropzone";
 import DoorResults from "./components/DoorResults";
 import AcvResults from "./components/AcvResults";
 import RailResults from "./components/RailResults";
+import RailDashboard from "./components/RailDashboard";
 import Glossary, { Term } from "./components/Glossary";
 import { TERMS } from "./terms";
 import Icon from "./components/Icon";
@@ -99,6 +100,7 @@ export default function App() {
           <p className="muted">This subsystem isn't implemented yet.</p>
         ) : (
           <>
+            {active === "rail" && <RailDashboard data={result} status={subsystemStatus} />}
             {subsystemStatus && !subsystemStatus.available && (
               <p className="banner banner--error">
                 No trained model registered for {current.label}. Run the matching <code>scripts/train_*.py</code> first.
