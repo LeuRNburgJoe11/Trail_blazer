@@ -1,0 +1,60 @@
+{
+  "subsystem": "rail",
+  "version": "v0_baseline",
+  "feature_columns": [
+    "rms_max",
+    "rms_mean",
+    "crest_factor_max",
+    "crest_factor_mean",
+    "kurtosis_max",
+    "kurtosis_mean",
+    "wavenumber_band0_energy_max",
+    "wavenumber_band0_energy_mean",
+    "wavenumber_band1_energy_max",
+    "wavenumber_band1_energy_mean",
+    "wavenumber_band2_energy_max",
+    "wavenumber_band2_energy_mean",
+    "wavenumber_band3_energy_max",
+    "wavenumber_band3_energy_mean",
+    "wavenumber_band4_energy_max",
+    "wavenumber_band4_energy_mean",
+    "speed_mps"
+  ],
+  "model_params": {
+    "ccp_alpha": 0.0,
+    "criterion": "friedman_mse",
+    "init": null,
+    "learning_rate": 0.1,
+    "loss": "log_loss",
+    "max_depth": 3,
+    "max_features": null,
+    "max_leaf_nodes": null,
+    "min_impurity_decrease": 0.0,
+    "min_samples_leaf": 1,
+    "min_samples_split": 2,
+    "min_weight_fraction_leaf": 0.0,
+    "n_estimators": 100,
+    "n_iter_no_change": null,
+    "random_state": 0,
+    "subsample": 1.0,
+    "tol": 0.0001,
+    "validation_fraction": 0.1,
+    "verbose": 0,
+    "warm_start": false
+  },
+  "fold_scores": {
+    "cv_macro_f1_mean": 0.6316882601432249,
+    "cv_macro_f1_per_fold": [
+      0.6736411736411737,
+      0.7995215311004785,
+      0.4426116838487973,
+      0.6801669121256749,
+      0.5625
+    ]
+  },
+  "artifact_checksum": "6507eae6f8d47493",
+  "measured_latency_s": null,
+  "selection_rationale": "Pooled side-binary GradientBoostingClassifier over wavenumber-band + time-domain features (architecture review Section 04 / this pipeline's docstring).",
+  "oof_predictions_path": null,
+  "created_at": 1789801193.5536268
+}

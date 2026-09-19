@@ -7,4 +7,4 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-throw "Deployment paused: the former script published Streamlit, not React. See docs/GOOGLE_CLOUD_DEPLOYMENT.md. No cloud changes have been made."
+throw "Use Cloud Shell: bash deploy/deploy_cloud_run.sh PROJECT_ID REGION --public. See docs/GOOGLE_CLOUD_DEPLOYMENT.md. This legacy Streamlit script makes no cloud changes."

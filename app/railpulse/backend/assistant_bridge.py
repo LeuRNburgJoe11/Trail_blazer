@@ -5,6 +5,7 @@ evidence trust boundary. Local-demo storage only; never expose without auth/TLS.
 """
 from collections import OrderedDict
 from copy import deepcopy
+from contextvars import ContextVar
 import json
 import os
 from pathlib import Path
@@ -25,9 +26,13 @@ LOCK = Lock()
 TTL = 3600
 MAX_BYTES = 24_000_000
 router = APIRouter()
+SESSION_OWNER = ContextVar("railpulse_session_owner", default=None)
+UPLOAD_DIRECTORY = ContextVar("railpulse_upload_directory", default=None)
 
 
 def local_request(request):
+    if request.scope.get("railpulse_cloud_verified"):
+        return True
     return request.url.hostname in {"localhost", "127.0.0.1"} and request.headers.get("origin") in {
         None, "http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"}
 
@@ -45,7 +50,7 @@ def remember(domain, payload):
                 del SNAPSHOTS[key]
         while SNAPSHOTS and (len(SNAPSHOTS) >= 16 or sum(v[3] for v in SNAPSHOTS.values()) + size > MAX_BYTES):
             SNAPSHOTS.popitem(last=False)
-        SNAPSHOTS[token] = (now + TTL, domain, snapshot, size)
+        SNAPSHOTS[token] = (now + TTL, domain, snapshot, size, SESSION_OWNER.get())
     return {**payload, "assistant_snapshot": token}
 
 
@@ -56,7 +61,7 @@ def snapshot_for(token, domain):
         raise ValueError("Invalid snapshot")
     with LOCK:
         saved = SNAPSHOTS.get(token)
-        if not saved or saved[0] < time.monotonic() or saved[1] != domain:
+        if not saved or saved[0] < time.monotonic() or saved[1] != domain or saved[4] != SESSION_OWNER.get():
             raise ValueError("Expired or mismatched snapshot. Run the analysis again.")
         return deepcopy(saved[2])
 

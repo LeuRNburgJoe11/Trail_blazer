@@ -4,8 +4,6 @@ const TRAINING_CLASSES = [
   { label: "Side II", count: 24, tone: "fault-alt" },
 ];
 
-const FOLD_SCORES = [0.848, 0.746, 0.775, 0.743, 0.826];
-
 function scoreText(value) {
   return typeof value === "number" ? value.toFixed(3) : "--";
 }
@@ -16,8 +14,10 @@ export default function RailDashboard({ data, status }) {
     (all, row) => ({ ...all, [row.prediction]: (all[row.prediction] || 0) + 1 }),
     { Normal: 0, "Side I": 0, "Side II": 0 },
   );
-  const modelScore = status?.fold_scores?.cv_macro_f1_mean;
-  const maxFold = Math.max(...FOLD_SCORES);
+  const validation = data?.validation || status?.fold_scores;
+  const modelScore = validation?.cv_macro_f1_mean;
+  const foldScores = validation?.cv_macro_f1_per_fold || [];
+  const maxFold = Math.max(0.001, ...foldScores);
   const flagged = rows.filter((row) => row.prediction !== "Normal");
 
   return (
@@ -32,8 +32,8 @@ export default function RailDashboard({ data, status }) {
         </div>
         <div className="rail-dashboard__status">
           <span className="status-dot" />
-          <span>Model ready</span>
-          <strong>{scoreText(modelScore || 0.788)} CV macro F1</strong>
+          <span>{status?.available ? "Model ready" : "Model unavailable"}</span>
+          <strong>{scoreText(modelScore)} CV macro F1</strong>
         </div>
       </div>
 
@@ -68,11 +68,11 @@ export default function RailDashboard({ data, status }) {
         </article>
 
         <article className="insight-panel">
-          <div className="panel-heading"><span>Stored validation</span><strong>5-fold stratified CV</strong></div>
-          <div className="validation-score"><strong>0.792</strong><span>pooled OOF macro F1</span></div>
+          <div className="panel-heading"><span>Registered model validation</span><strong>{foldScores.length ? `${foldScores.length}-fold stratified CV` : "Unavailable"}</strong></div>
+          <div className="validation-score"><strong>{scoreText(modelScore)}</strong><span>mean fold macro F1</span></div>
           <div className="fold-row" aria-label="Macro F1 by validation fold">
-            {FOLD_SCORES.map((score, index) => (
-              <div className="fold-column" key={score} title={`Fold ${index + 1}: ${scoreText(score)}`}>
+            {foldScores.map((score, index) => (
+              <div className="fold-column" key={index} title={`Fold ${index + 1}: ${scoreText(score)}`}>
                 <span style={{ height: `${(score / maxFold) * 100}%` }} />
                 <small>{index + 1}</small>
               </div>

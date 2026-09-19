@@ -94,12 +94,12 @@ Door and SHM use canonical subprocess inference; ACV uses the dashboard rule-bas
 ranker; Rail uses its registry model. Chat does not claim these are all the audited
 bundle or attach canonical replay validation to different models.
 
-Rail's component contains static fold scores, pooled OOF value, fallback score and
-a readiness label. Chat explicitly identifies these as UI reference literals, not
-fresh validation or proof of availability. Actual Rail inference still requires a
-trained registry model. The existing Door status endpoint can report no registry
-model even though Door inference uses the canonical subprocess; this integration
-does not replace the dashboard's model-status implementation.
+Rail's component now uses registered-model fold scores and their mean, with no
+invented fallback score or pooled OOF claim. Actual Rail inference requires the
+trained registry model. Door status checks its canonical classifier and Normal
+reference instead of the unrelated legacy registry. The cloud image packages
+both the Door reference and the nested Rail model; local Compose still uses its
+own persistent registry volume.
 
 SHM's D = 1 bar reference is not an approved threshold for the calibrated proxy.
 The integrated assistant does not turn it into a lifetime percentage or maintenance

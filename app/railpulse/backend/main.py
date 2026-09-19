@@ -25,6 +25,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 from typing import List
 
@@ -42,7 +43,7 @@ from railpulse.core.submission import door_result_to_frame
 from railpulse.door.loader import load_stream
 from railpulse.door.pipeline import DoorPipeline
 from railpulse.rail.pipeline import RailPipeline
-from .assistant_bridge import router as assistant_router, remember
+from .assistant_bridge import router as assistant_router, remember, UPLOAD_DIRECTORY, SESSION_OWNER
 
 REGISTRY_DIR = "./registry"
 PROTOTYPE_DIR = Path(__file__).resolve().parent.parent
@@ -107,9 +108,27 @@ app.add_middleware(
 
 
 def _save_upload(upload: UploadFile, suffix: str) -> str:
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(upload.file.read())
+    directory = UPLOAD_DIRECTORY.get()
+    if directory and (not upload.filename or Path(upload.filename).suffix.lower() != suffix):
+        raise HTTPException(400, f"Expected a {suffix} recording")
+    if directory and suffix == ".xlsx":
+        try:
+            with zipfile.ZipFile(upload.file) as archive:
+                if len(archive.infolist()) > 2000 or sum(v.file_size for v in archive.infolist()) > 128 * 1024 * 1024:
+                    raise HTTPException(413, "Workbook expands beyond the demo limit")
+        except zipfile.BadZipFile:
+            raise HTTPException(400, "Invalid XLSX workbook")
+        finally:
+            upload.file.seek(0)
+    with tempfile.NamedTemporaryFile(suffix=suffix, dir=directory, delete=False) as tmp:
+        while block := upload.file.read(1024 * 1024):
+            tmp.write(block)
         return tmp.name
+
+
+def _validate_batch(files):
+    if UPLOAD_DIRECTORY.get() and not 1 <= len(files) <= 8:
+        raise HTTPException(400, "Public demo accepts 1–8 files per batch (24 MiB total).")
 
 
 def _load_registered(subsystem: str):
@@ -393,6 +412,11 @@ def status():
                 "available": record is not None,
                 "fold_scores": record.fold_scores if record else None,
             }
+    bundle = ROOT_REPO / "outputs/combined/architecture-audit-final/models"
+    out["door"] = {"available": (bundle / "door.joblib").is_file() and (PROTOTYPE_DIR / "registry/door/normal_reference.json").is_file(), "fold_scores": None, "note": "canonical classifier + Normal reference"}
+    out["shm"] = {"available": (bundle / "shm.joblib").is_file(), "fold_scores": None}
+    if SESSION_OWNER.get():
+        out["_demo"] = True
     return out
 
 
@@ -404,6 +428,7 @@ def predict_door(files: List[UploadFile] = File(...)):
     interpreter, so the process boundary is what lets this panel show the
     audited segmentation and per-cycle evidence.
     """
+    _validate_batch(files)
     rows = []
     for upload in files:
         source = Path(_save_upload(upload, ".csv"))
@@ -415,7 +440,7 @@ def predict_door(files: List[UploadFile] = File(...)):
         finished = subprocess.run(
             [sys.executable, str(DOOR_INFER), "--input", str(source),
              "--output", str(destination), "--source-name", upload.filename],
-            capture_output=True, text=True, env=environment, cwd=str(PROTOTYPE_DIR),
+            capture_output=True, text=True, env=environment, cwd=str(PROTOTYPE_DIR), timeout=180,
         )
         if finished.returncode != 0:
             detail = (finished.stderr or finished.stdout or "").strip().splitlines()
@@ -430,6 +455,7 @@ def predict_door(files: List[UploadFile] = File(...)):
 
 @app.post("/api/acv/predict")
 def predict_acv(files: List[UploadFile] = File(...)):
+    _validate_batch(files)
     rows = []
     for upload in files:
         # load_case + rank_cars is exactly what ACVPipeline.predict_file does;
@@ -462,6 +488,7 @@ def predict_acv(files: List[UploadFile] = File(...)):
 
 @app.post("/api/rail/predict")
 def predict_rail(files: List[UploadFile] = File(...)):
+    _validate_batch(files)
     model, record = _load_registered("rail")
     if model is None:
         raise HTTPException(503, "No trained Rail model registered. Run scripts/train_rail.py first.")
@@ -495,13 +522,14 @@ def predict_shm(files: List[UploadFile] = File(...)):
     rainflow counting over ~581k samples per file dominates the runtime, and
     reloading the model per file would only add to it.
     """
+    _validate_batch(files)
     sources, names = [], []
     for upload in files:
         sources.append(_save_upload(upload, ".csv"))
         names.append(upload.filename)
     # Unique per request: pid + count collides for concurrent uploads and could
     # attach another request's result to an assistant snapshot.
-    with tempfile.NamedTemporaryFile(suffix=".shm.json", delete=False) as output:
+    with tempfile.NamedTemporaryFile(suffix=".shm.json", dir=UPLOAD_DIRECTORY.get(), delete=False) as output:
         destination = Path(output.name)
 
     environment = dict(os.environ)
@@ -509,7 +537,7 @@ def predict_shm(files: List[UploadFile] = File(...)):
     finished = subprocess.run(
         [sys.executable, str(SHM_INFER), "--inputs", *map(str, sources),
          "--names", *names, "--output", str(destination)],
-        capture_output=True, text=True, env=environment, cwd=str(PROTOTYPE_DIR),
+        capture_output=True, text=True, env=environment, cwd=str(PROTOTYPE_DIR), timeout=180,
     )
     if finished.returncode != 0:
         detail = (finished.stderr or finished.stdout or "").strip().splitlines()

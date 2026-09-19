@@ -32,7 +32,7 @@ def test_empty_never_invents_results():
     ("door", "Explain the Normal envelope", "90th percentile"),
     ("acv", "Explain the suspicion index", "not a failure probability"),
     ("acv", "Explain near ties in the consist", "0.02"),
-    ("rail", "Explain the validation fold scores", "UI reference literals"),
+    ("rail", "Explain the validation fold scores", "registered model"),
     ("shm", "Explain the Miner reference", "not percentage of lifetime"),
 ])
 def test_panel_explanations(domain, question, expected):

@@ -1,5 +1,9 @@
 # Trail_blazer
 
+**Public judge demo:** see [Cloud Shell deployment](docs/GOOGLE_CLOUD_DEPLOYMENT.md).
+The cloud target serves React and the API together, with bounded anonymous-session
+isolation and bundled model assets. This is a temporary demo, not a production service.
+
 **Docker:** `docker compose up --build -d`, then open http://127.0.0.1:5173.
 See [Docker setup, model assets and batch workflows](docs/DOCKER.md).
 

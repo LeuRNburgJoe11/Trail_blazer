@@ -132,6 +132,14 @@ export default function App() {
         </p>
       </header>
 
+      {status?._demo && (
+        <p className="banner">
+          Public hackathon demo · use non-sensitive recordings only. Maximum 8 files / 24 MiB per batch.
+          Uploads are temporary; results expire after an hour or a service restart.
+          API keys are optional and remain in session memory. Advisory only—not a safety clearance.
+        </p>
+      )}
+
       <nav className="tabs">
         {SUBSYSTEMS.map((s) => (
           <button

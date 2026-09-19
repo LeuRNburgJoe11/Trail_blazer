@@ -23,7 +23,7 @@ GUIDES = {
     ],
     "rail": [
         ("side positions sensor layout", "Odd axle-box positions 1, 3, 5 and 7 correspond to Side I; even positions 2, 4, 6 and 8 correspond to Side II. This is a sensor layout, not an exact track location."),
-        ("validation fold score ready", "The Rail panel includes static reference values: fold scores 0.848, 0.746, 0.775, 0.743, 0.826 and pooled OOF macro F1 0.792. They are UI reference literals, not newly measured performance. The readiness badge and fallback 0.788 are also not proof that a model is loaded; use actual backend status and result metadata."),
+        ("validation fold score ready", "The Rail panel reports the registered model's stored validation: individual file-level stratified cross-validation fold macro F1 scores and their mean. This mean is not pooled out-of-fold macro F1 or held-out test performance. Missing model metadata is shown as unavailable, not replaced with example scores. Inspect current result metadata for the numeric values."),
         ("panel dashboard navigation", "The panel shows sensor mapping, class balance and a current-batch summary. The results table lists flagged files and Side I/Side II scores; Show all includes Normal predictions. Side scores are not calibrated probabilities."),
     ],
     "shm": [

@@ -36,3 +36,12 @@ FROM nginxinc/nginx-unprivileged:stable-alpine AS dashboard
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=frontend-build /frontend/dist /usr/share/nginx/html
 EXPOSE 8080
+
+# Cloud Run: one process serves React and /api on the required PORT.
+FROM runtime AS cloud
+COPY --from=frontend-build --chown=railpulse:railpulse /frontend/dist /workspace/public
+COPY --chown=railpulse:railpulse deploy/assets/ /workspace/app/railpulse/registry/
+COPY --chown=railpulse:railpulse docker/start-cloud.sh /workspace/start-cloud.sh
+RUN python /workspace/scripts/check_dashboard_setup.py --require-all
+EXPOSE 8080
+CMD ["sh", "/workspace/start-cloud.sh"]
