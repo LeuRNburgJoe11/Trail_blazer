@@ -13,10 +13,13 @@ docker compose ps
 docker compose logs --tail=100 backend dashboard
 ```
 
-Open **http://127.0.0.1:5173**. React is built once and served by nginx, which
+Open **http://127.0.0.1:5173**. If that host port is occupied, choose another
+one with `DASHBOARD_PORT=5174 docker compose up --build -d` (PowerShell:
+`$env:DASHBOARD_PORT=5174; docker compose up --build -d`). React is built once and served by nginx, which
 proxies `/api` to the private backend. Port 8000 is not published. The assistant
 retains its localhost host/origin restrictions; do not change the public port
-without updating those restrictions. Stop previous local Vite on 5173 first.
+without updating those restrictions. Stop any previous local Vite process on
+the selected host port first.
 Provider SDKs are included. Enter your key and consent in the UI; do not bake keys
 into images or pass them as Docker build arguments. API use needs internet access.
 

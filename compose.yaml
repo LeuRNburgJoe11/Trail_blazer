@@ -3,6 +3,7 @@ x-runtime: &runtime
   image: railpulse-runtime:local
   build:
     context: .
+    dockerfile: Dockerfile.dashboard
     target: runtime
   init: true
   security_opt:
@@ -28,7 +29,7 @@ services:
       dockerfile: Dockerfile.dashboard
       target: dashboard
     ports:
-      - "127.0.0.1:5173:8080"
+      - "127.0.0.1:${DASHBOARD_PORT:-5173}:8080"
     depends_on:
       backend:
         condition: service_healthy
