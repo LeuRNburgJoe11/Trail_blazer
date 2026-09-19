@@ -42,6 +42,7 @@ from railpulse.core.submission import door_result_to_frame
 from railpulse.door.loader import load_stream
 from railpulse.door.pipeline import DoorPipeline
 from railpulse.rail.pipeline import RailPipeline
+from .assistant_bridge import router as assistant_router, remember
 
 REGISTRY_DIR = "./registry"
 PROTOTYPE_DIR = Path(__file__).resolve().parent.parent
@@ -96,9 +97,10 @@ ACV_NEAR_TIE = 0.02
 ACV_CAB_POSITIONS = (1, 8)
 
 app = FastAPI(title="RailPulse API")
+app.include_router(assistant_router)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # dev only -- tighten before any real deployment
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:5174", "http://127.0.0.1:5174"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -423,11 +425,7 @@ def predict_door(files: List[UploadFile] = File(...)):
     # Official Door schema is start_time,end_time,prediction -- no file id.
     submission = pd.DataFrame([{key: row[key] for key in ("start_time", "end_time", "prediction")}
                                for row in rows], columns=["start_time", "end_time", "prediction"])
-    return {
-        "rows": rows,
-        "submission_csv": submission.to_csv(index=False),
-        "model_score": None,
-    }
+    return remember("door", {"rows": rows, "submission_csv": submission.to_csv(index=False), "model_score": None})
 
 
 @app.post("/api/acv/predict")
@@ -459,7 +457,7 @@ def predict_acv(files: List[UploadFile] = File(...)):
     validation = _acv_validation()
 
     submission = pd.DataFrame([{"file_id": r["file_id"], "ranked_cars": "|".join(r["ranked_cars"])} for r in rows])
-    return {"rows": rows, "submission_csv": submission.to_csv(index=False), "validation": validation}
+    return remember("acv", {"rows": rows, "submission_csv": submission.to_csv(index=False), "validation": validation})
 
 
 @app.post("/api/rail/predict")
@@ -481,11 +479,12 @@ def predict_rail(files: List[UploadFile] = File(...)):
         })
 
     submission = pd.DataFrame([{"file_id": r["file_id"], "prediction": r["prediction"]} for r in rows])
-    return {
+    return remember("rail", {
         "rows": rows,
         "submission_csv": submission.to_csv(index=False),
         "model_score": record.fold_scores.get("cv_macro_f1_mean"),
-    }
+        "validation": record.fold_scores,
+    })
 
 
 @app.post("/api/shm/predict")
@@ -500,7 +499,10 @@ def predict_shm(files: List[UploadFile] = File(...)):
     for upload in files:
         sources.append(_save_upload(upload, ".csv"))
         names.append(upload.filename)
-    destination = Path(tempfile.gettempdir()) / f"shm_{os.getpid()}_{len(names)}.json"
+    # Unique per request: pid + count collides for concurrent uploads and could
+    # attach another request's result to an assistant snapshot.
+    with tempfile.NamedTemporaryFile(suffix=".shm.json", delete=False) as output:
+        destination = Path(output.name)
 
     environment = dict(os.environ)
     environment["PYTHONPATH"] = str(ROOT_REPO / "src")
@@ -517,8 +519,8 @@ def predict_shm(files: List[UploadFile] = File(...)):
     # Official SHM schema is file_id,prediction -- evidence stays out of it.
     submission = pd.DataFrame([{"file_id": r["file_id"], "prediction": r["prediction"]} for r in rows],
                               columns=["file_id", "prediction"])
-    return {
+    return remember("shm", {
         "rows": rows,
         "submission_csv": submission.to_csv(index=False),
         "method": SHM_METHOD,
-    }
+    })

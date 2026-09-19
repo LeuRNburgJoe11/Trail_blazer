@@ -1,4 +1,11 @@
 # Trail_blazer
+
+**Docker:** `docker compose up --build -d`, then open http://127.0.0.1:5173.
+See [Docker setup, model assets and batch workflows](docs/DOCKER.md).
+
+**React dashboard + RailPulser:** follow the [teammate setup guide](docs/DASHBOARD_SETUP.md)
+on `agentic-addition`. Install `requirements-dashboard.txt`; the guide covers
+optional API providers, missing Door/Rail assets, startup and upload tests.
 This is Team TrailBlazer's submission for LTA x Nebula Hackathon. Our solution, known as Railpulse, provides advanced condition-monitoring and predictive maintenance pipelines.
 
 See the [19 September architecture audit](docs/ARCHITECTURE_AUDIT.md) for verified
@@ -14,6 +21,18 @@ dashboard or run `python scripts/build_decisions.py` for dashboard JSON exports.
 The separate React/FastAPI prototype in [`app/railpulse/`](app/railpulse/README.md)
 is preserved for future UI integration. It has its own duplicate Python package and
 model registry; it is not yet wired to the audited four-subsystem decision layer.
+
+The [evidence assistant](docs/ASSISTANT.md) is available in `app/main.py`: local
+question answering without a key, source cards, metric explanations and optional
+LangChain-based evidence selection. Its backend is reusable by the dashboard team.
+
+A standalone [React agent-interface prototype](app/assistant-ui/README.md) adds
+the model picker, OpenAI/Anthropic key connection, source notebook and scoped chat.
+It runs on port 5174 with the local canonical assistant API on port 8766.
+
+The [engineering assistant guide](docs/ENGINEERING_ASSISTANT.md) covers attributed
+engineer notes, bounded instructions, contextual definitions and review briefings.
+Restart an already-running backend after updating to this schema-2 interface.
 
 ## Run all four subsystems
 

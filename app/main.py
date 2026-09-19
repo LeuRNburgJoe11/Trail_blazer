@@ -12,6 +12,7 @@ import streamlit as st
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "app"))
 from railpulse.core.inference import load_bundle
 from railpulse.core.decisions import analyse_decision, decision_payload
 from railpulse.core.dashboard import dashboard_summary
@@ -48,6 +49,7 @@ if st.sidebar.button("Clear session predictions"):
     st.session_state.exports = {}
     st.session_state.decisions = {}
     st.session_state.failures = {}
+    st.session_state.pop("assistant_answer", None)
 if st.button("Analyse", disabled=not items):
     # Do not show a stale successful export for a failed replacement upload.
     previous = st.session_state.exports.pop(subsystem, None)
@@ -219,3 +221,6 @@ if st.session_state.exports:
             archive.writestr(f"{name}_predictions.csv", exported)
     st.download_button("Download predictions.zip", archive_bytes.getvalue(), "predictions.zip", "application/zip")
     st.caption("The ZIP contains only the subsystem uploads analysed in this session; check test-file coverage before submission.")
+
+from assistant_panel import render_assistant
+render_assistant(records, model_directory, current_signature, st.session_state.failures)

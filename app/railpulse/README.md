@@ -1,5 +1,15 @@
 # RailPulse
 
+**Current React dashboard setup:** use [DASHBOARD_SETUP.md](../../docs/DASHBOARD_SETUP.md).
+It supersedes the historical installation commands below. Do **not** use
+`pip install -e .` for the integrated dashboard. Door/SHM use canonical subprocess
+inference, while ACV/Rail use the nested pipelines; SHM is not stubbed in this UI.
+
+The dashboard now includes subsystem-scoped chat and an Assistant workspace.
+See [integration startup and boundaries](../../docs/DASHBOARD_ASSISTANT_INTEGRATION.md).
+Use the repository `.venv` for the backend; the assistant is isolated from this
+directory's duplicate Python package. The separate port-8766 prototype is not needed.
+
 > Integration note: this directory is a separate experimental React/FastAPI and
 > legacy Streamlit package, not the audited four-subsystem deployment. The canonical
 > runtime is the repository-root `src/railpulse`, launched through `app/main.py`,

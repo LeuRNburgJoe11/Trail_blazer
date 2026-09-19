@@ -1,0 +1,52 @@
+name: railpulse
+x-runtime: &runtime
+  image: railpulse-runtime:local
+  build:
+    context: .
+    target: runtime
+  init: true
+  security_opt:
+    - no-new-privileges:true
+  cap_drop: [ALL]
+
+services:
+  backend:
+    <<: *runtime
+    volumes:
+      - registry:/workspace/app/railpulse/registry
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/assistant/context', timeout=10)"]
+      interval: 30s
+      timeout: 15s
+      start_period: 60s
+      retries: 3
+
+  dashboard:
+    image: railpulse-dashboard:local
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+      target: dashboard
+    ports:
+      - "127.0.0.1:5173:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
+    security_opt:
+      - no-new-privileges:true
+    cap_drop: [ALL]
+
+  tools:
+    <<: *runtime
+    profiles: [tools]
+    working_dir: /workspace
+    command: [python, scripts/check_dashboard_setup.py]
+    volumes:
+      - data:/workspace/data
+      - registry:/workspace/app/railpulse/registry
+      - runs:/workspace/run-output
+
+volumes:
+  registry:
+  data:
+  runs:
