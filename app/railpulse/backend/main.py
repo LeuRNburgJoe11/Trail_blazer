@@ -134,7 +134,10 @@ def _acv_indicators(df: pd.DataFrame, cars: List[str]) -> dict:
     if indoor.dropna(how="all").empty:
         return {car: {} for car in cars}
     residual = indoor.sub(indoor.median(axis=1), axis=0)
-    warmest = indoor.idxmax(axis=1)
+    # Rows where no car reported cannot have a warmest car; excluding them keeps
+    # the share honest and avoids an all-NA idxmax.
+    reported = indoor.dropna(how="all")
+    warmest = reported.idxmax(axis=1) if not reported.empty else pd.Series(dtype=object)
     # Rows are evenly spaced, so a row count converts straight to hours.
     step_hours = _row_step_hours(df)
     out = {}
@@ -148,11 +151,28 @@ def _acv_indicators(df: pd.DataFrame, cars: List[str]) -> dict:
             "peer_residual_p90": round(float(values.quantile(0.9)), 2) if len(values) else None,
             "warmest_share": round(float((warmest == car).mean()) * 100, 1) if len(warmest) else None,
             "hours_above_1c": round(float((values > 1).sum()) * step_hours, 2) if len(values) and step_hours else None,
+            "persistent_run_minutes": _longest_run(residual[car], step_hours),
             "duty_cycle": round(float(mode.isin(ACV_COOLING_MODES).mean()) * 100, 1) if len(mode) else None,
             "telemetry_valid": (round(float((valid.dropna().astype(str) == "Valid").mean()) * 100, 1)
                                 if valid is not None and not valid.dropna().empty else None),
         }
     return out
+
+
+def _longest_run(residual: pd.Series, step_hours) -> float | None:
+    """Longest unbroken stretch, in minutes, spent warmer than the peer median.
+
+    A car that is briefly warm looks the same as one that never recovers when
+    you only average; this separates them, which is what an engineer is
+    actually deciding between.
+    """
+    if step_hours is None or residual.dropna().empty:
+        return None
+    best = current = 0
+    for value in residual.fillna(0).to_numpy():
+        current = current + 1 if value > 0 else 0
+        best = max(best, current)
+    return round(best * step_hours * 60, 1)
 
 
 def _row_step_hours(df: pd.DataFrame) -> float | None:
@@ -174,11 +194,90 @@ def _headline(indicators: dict) -> str:
         parts.append(f"Peer residual {value:+.2f} °C")
     if indicators.get("warmest_share") is not None:
         parts.append(f"warmest car {indicators['warmest_share']:.0f}% of window")
-    if indicators.get("hours_above_1c"):
-        parts.append(f"{indicators['hours_above_1c']:.2f} h above +1 °C")
+    if indicators.get("persistent_run_minutes"):
+        parts.append(f"{indicators['persistent_run_minutes']:.0f} min longest warm run")
     if indicators.get("duty_cycle") is not None:
         parts.append(f"duty cycle {indicators['duty_cycle']:.0f}%")
     return "; ".join(parts) if parts else "No comparable telemetry in this file"
+
+
+def _acv_summary(car: str, tier: str, indicators: dict, fleet_median) -> str:
+    """Plain-language read of one car, built only from measured indicators."""
+    residual = indicators.get("peer_residual_mean")
+    warmest = indicators.get("warmest_share")
+    run = indicators.get("persistent_run_minutes")
+    duty = indicators.get("duty_cycle")
+    if residual is None:
+        return f"Car {car} has no comparable cabin-temperature telemetry in this file."
+    direction = "warmer than" if residual > 0 else "cooler than" if residual < 0 else "level with"
+    text = [f"Car {car} runs {abs(residual):.2f} °C {direction} the train median on average"]
+    if warmest is not None:
+        text.append(f", and is the warmest car {warmest:.0f}% of the recorded window")
+    text.append(".")
+    if run:
+        text.append(f" Its longest unbroken warm stretch is {run:.0f} minutes.")
+    if duty is not None:
+        text.append(f" Cooling duty cycle {duty:.0f}%.")
+    if tier == "primary":
+        text.append(" This is the strongest peer-relative deviation in the consist, which is why it ranks first.")
+    elif tier == "co_suspect":
+        text.append(" It sits within a tie margin of the car above it, so inspect both.")
+    else:
+        text.append(" Nothing here separates it from its peers; a nominal rank is not a clearance.")
+    return "".join(text)
+
+
+def _acv_series(df: pd.DataFrame, cars: List[str], points: int = 180) -> dict:
+    """Measured cabin temperature per car over the window, thinned for plotting.
+
+    Real samples on a stride, not a smoothed or synthesised curve: a viewer
+    comparing a car against its peers has to be looking at the same numbers the
+    ranking was computed from.
+    """
+    indoor = pd.DataFrame({
+        car: pd.to_numeric(df.get(f"Car {car} - {ACV_CONTEXT['indoor_temp']}"), errors="coerce")
+        for car in cars
+    })
+    if indoor.dropna(how="all").empty:
+        return {"available": False}
+    stride = max(1, len(indoor) // points)
+    thinned = indoor.iloc[::stride]
+    stamps = pd.to_datetime(df["Time"], errors="coerce").iloc[::stride] if "Time" in df.columns else None
+    setpoint = pd.to_numeric(df.get(f"Car {cars[0]} - {ACV_CONTEXT['cooling_setpoint']}"), errors="coerce")
+    return {
+        "available": True,
+        "stride": stride,
+        "time": [None if stamps is None else str(value) for value in (stamps if stamps is not None else thinned.index)],
+        "by_car": {car: [None if pd.isna(v) else round(float(v), 2) for v in thinned[car]] for car in cars},
+        "peer_median": [None if pd.isna(v) else round(float(v), 2) for v in thinned.median(axis=1)],
+        "setpoint": (None if setpoint is None or setpoint.dropna().empty
+                     else round(float(setpoint.median()), 2)),
+    }
+
+
+def _acv_validation() -> dict:
+    """Recorded leave-one-case-out results, read from the repository outputs.
+
+    Read rather than hardcoded so the panel cannot drift from the numbers the
+    team actually validated. Absent file means the panel simply shows nothing.
+    """
+    path = ROOT_REPO / "outputs/acv/validation_results_baseline.csv"
+    if not path.exists():
+        return {"available": False}
+    frame = pd.read_csv(path)
+    if not {"case_id", "true_car_rank", "rank_decay_score"} <= set(frame.columns):
+        return {"available": False}
+    return {
+        "available": True,
+        "protocol": "leave-one-case-out",
+        "mean_rank_decay": round(float(frame.rank_decay_score.mean()), 4),
+        "n_cases": int(len(frame)),
+        "top1": int((frame.true_car_rank == 1).sum()),
+        "worst_rank": int(frame.true_car_rank.max()),
+        "cases": [{"case": str(row.case_id).replace(".xlsx", ""), "rank": int(row.true_car_rank),
+                   "score": round(float(row.rank_decay_score), 3)} for row in frame.itertuples()],
+        "source": "outputs/acv/validation_results_baseline.csv",
+    }
 
 
 def _acv_cars(df: pd.DataFrame, cars: List[str], ranked: List[str], display: dict) -> dict:
@@ -216,6 +315,7 @@ def _acv_cars(df: pd.DataFrame, cars: List[str], ranked: List[str], display: dic
             "tier": tier,
             "indicators": indicators.get(car, {}),
             "headline": _headline(indicators.get(car, {})),
+            "summary": _acv_summary(car, tier, indicators.get(car, {}), None),
         })
     return {
         "rows": rows,
@@ -332,11 +432,14 @@ def predict_acv(files: List[UploadFile] = File(...)):
             "lead_over_next": (round(display_scores[ranked[0]] - display_scores[ranked[1]], 1)
                                if len(ranked) > 1 else None),
             "consist": _acv_cars(df, cars, ranked, display_scores),
+            "series": _acv_series(df, cars),
             "context": _acv_context(df, cars),
         })
 
+    validation = _acv_validation()
+
     submission = pd.DataFrame([{"file_id": r["file_id"], "ranked_cars": "|".join(r["ranked_cars"])} for r in rows])
-    return {"rows": rows, "submission_csv": submission.to_csv(index=False)}
+    return {"rows": rows, "submission_csv": submission.to_csv(index=False), "validation": validation}
 
 
 @app.post("/api/rail/predict")

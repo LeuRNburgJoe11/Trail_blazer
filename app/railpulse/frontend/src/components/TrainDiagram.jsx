@@ -1,15 +1,16 @@
 /**
  * Consist diagram: cars in formation order, Car 1 (lead) to Car N (tail).
  *
- * Three status tiers, each with a word as well as a colour so the tier never
- * rests on hue alone: PRIMARY (red), CO-SUSPECT (amber), and the car type --
- * CAB or TRAILER -- in neutral ink when nothing is flagged. The co-suspect
- * bracket is drawn only when the ranking margin is genuinely tight; a clear
- * winner shows one red car and no bracket.
+ * Each box is named for its car and nothing else. Car type (cab vs trailer) is
+ * a formation assumption rather than anything the telemetry reports, so the
+ * diagram does not assert it. A flagged car still carries its tier as a word
+ * (PRIMARY / CO-SUSPECT) beneath the name, so status never rests on colour
+ * alone. The co-suspect bracket is drawn only when the ranking margin is
+ * genuinely tight; a clear winner shows one red car and no bracket.
  */
 const TIER_LABEL = { primary: "PRIMARY", co_suspect: "CO-SUSPECT" };
 
-export default function TrainDiagram({ cars, cluster = [], nearTieThreshold, carTypeSource }) {
+export default function TrainDiagram({ cars, cluster = [], nearTieThreshold, selected, onSelect }) {
   if (!cars || cars.length === 0) return null;
 
   const clusterSet = new Set(cluster);
@@ -30,9 +31,8 @@ export default function TrainDiagram({ cars, cluster = [], nearTieThreshold, car
   return (
     <div className="consist">
       <p className="consist__caption">
-        Showing Cars {first.position ?? 1} to {last.position ?? cars.length}, lead{" "}
-        {(first.car_type ?? "car").toLowerCase()} to tail {(last.car_type ?? "car").toLowerCase()}
-        {carTypeSource ? <span className="consist__assumed" title={carTypeSource}> (car type assumed)</span> : null}
+        Select a car to inspect it. Showing Cars {first.position ?? 1} to{" "}
+        {last.position ?? cars.length} in formation order, lead to tail.
       </p>
 
       {brackets.length > 0 && (
@@ -54,21 +54,25 @@ export default function TrainDiagram({ cars, cluster = [], nearTieThreshold, car
       <div className="consist__cars" style={columns}>
         {cars.map((car) => {
           const tier = car.tier ?? "nominal";
-          const label = TIER_LABEL[tier] ?? (car.car_type ?? "CAR").toUpperCase();
+          const label = TIER_LABEL[tier];
+          const name = `Car ${car.position ?? car.car}`;
           return (
             <div className="consist__slot" key={car.car}>
-              <span className="consist__position">{car.position ?? car.car}</span>
-              <div
-                className={`consist__car consist__car--${tier}`}
+              <button
+                type="button"
+                onClick={() => onSelect?.(car.car)}
+                aria-pressed={selected === car.car}
+                className={`consist__car consist__car--${tier}${selected === car.car ? " consist__car--selected" : ""}`}
                 title={
-                  tier === "nominal"
-                    ? `Car ${car.car} -- no anomaly detected`
-                    : `Car ${car.car} -- ${label.toLowerCase()}`
+                  label
+                    ? `${name} -- ${label.toLowerCase()}. Select to inspect.`
+                    : `${name} -- no anomaly detected. Select to inspect.`
                 }
               >
-                <span className="consist__car-label">{label}</span>
+                <span className="consist__car-name">{name}</span>
+                {label && <span className="consist__car-label">{label}</span>}
                 {car.rank != null && <span className="consist__car-rank">#{car.rank}</span>}
-              </div>
+              </button>
               <span className={`consist__score consist__score--${tier}`}>
                 {car.score == null ? "—" : car.score.toFixed(2)}
               </span>

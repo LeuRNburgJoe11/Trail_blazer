@@ -9,7 +9,7 @@
  */
 const TIER_TEXT = { primary: "Primary Suspect", co_suspect: "Co-Suspect", nominal: "Nominal" };
 
-export default function ConsistChecklist({ cars, nearTieThreshold }) {
+export default function ConsistChecklist({ cars, nearTieThreshold, selected, onSelect }) {
   if (!cars || cars.length === 0) return null;
 
   return (
@@ -41,9 +41,17 @@ export default function ConsistChecklist({ cars, nearTieThreshold }) {
             {cars.map((car) => {
               const tier = car.tier ?? "nominal";
               return (
-                <tr key={car.car} className={`checklist__row checklist__row--${tier}`}>
+                <tr
+                  key={car.car}
+                  className={`checklist__row checklist__row--${tier}${selected === car.car ? " checklist__row--selected" : ""}`}
+                  onClick={() => onSelect?.(car.car)}
+                  tabIndex={0}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect?.(car.car); }
+                  }}
+                >
                   <td className="checklist__car">
-                    <strong>Car {car.position ?? car.car}</strong>
+                    <strong>Car {car.car}</strong>
                     {car.car_type && <span className="checklist__type"> ({car.car_type})</span>}
                   </td>
                   <td className="checklist__rank">{car.rank == null ? "—" : `#${car.rank}`}</td>
