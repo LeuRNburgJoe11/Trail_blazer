@@ -51,7 +51,18 @@ ACV_CONTEXT = {
     "cooling_setpoint": "ACV Control Temperature (Cooling)",
     "running_mode": "ACV Running Mode",
     "setting_mode": "ACV Setting Mode",
+    "telemetry_valid": "ACV Information Valid",
 }
+# Running modes that count as the unit actively cooling, for duty cycle.
+ACV_COOLING_MODES = {"Automatic Cooling", "Full Cooling"}
+# Two cars apart in the ranking index by this or less are not meaningfully
+# separated, so the runner-up is shown as a co-suspect instead of being
+# silently dropped below the flagged car.
+ACV_NEAR_TIE = 0.02
+# Formation convention, NOT telemetry: an 8-car set drives from both ends.
+# The case files carry no car-type column, so this is a stated assumption and
+# is labelled as one in the UI rather than presented as a measurement.
+ACV_CAB_POSITIONS = (1, 8)
 
 app = FastAPI(title="RailPulse API")
 app.add_middleware(
@@ -100,6 +111,112 @@ def _time_bounds(df: pd.DataFrame):
     if stamps.empty:
         return None, None
     return str(stamps.min()), str(stamps.max())
+
+
+def _acv_indicators(df: pd.DataFrame, cars: List[str]) -> dict:
+    """Per-car physical evidence behind the ranking, from this file only.
+
+    Deliberately narrow: every figure here is computed from columns the file
+    actually carries. Quantities the telemetry does not support -- recovery lag
+    to setpoint, for one -- are left out rather than estimated, because a
+    plausible-looking number would send someone to the wrong car.
+    """
+    indoor = pd.DataFrame({
+        car: pd.to_numeric(df.get(f"Car {car} - {ACV_CONTEXT['indoor_temp']}"), errors="coerce")
+        for car in cars
+    })
+    if indoor.dropna(how="all").empty:
+        return {car: {} for car in cars}
+    residual = indoor.sub(indoor.median(axis=1), axis=0)
+    warmest = indoor.idxmax(axis=1)
+    # Rows are evenly spaced, so a row count converts straight to hours.
+    step_hours = _row_step_hours(df)
+    out = {}
+    for car in cars:
+        values = residual[car].dropna()
+        mode = df.get(f"Car {car} - {ACV_CONTEXT['running_mode']}")
+        mode = mode.dropna().astype(str) if mode is not None else pd.Series(dtype=str)
+        valid = df.get(f"Car {car} - {ACV_CONTEXT['telemetry_valid']}")
+        out[car] = {
+            "peer_residual_mean": round(float(values.mean()), 3) if len(values) else None,
+            "peer_residual_p90": round(float(values.quantile(0.9)), 2) if len(values) else None,
+            "warmest_share": round(float((warmest == car).mean()) * 100, 1) if len(warmest) else None,
+            "hours_above_1c": round(float((values > 1).sum()) * step_hours, 2) if len(values) and step_hours else None,
+            "duty_cycle": round(float(mode.isin(ACV_COOLING_MODES).mean()) * 100, 1) if len(mode) else None,
+            "telemetry_valid": (round(float((valid.dropna().astype(str) == "Valid").mean()) * 100, 1)
+                                if valid is not None and not valid.dropna().empty else None),
+        }
+    return out
+
+
+def _row_step_hours(df: pd.DataFrame) -> float | None:
+    """Median sampling interval in hours, or None when there is no usable Time."""
+    if "Time" not in df.columns:
+        return None
+    stamps = pd.to_datetime(df["Time"], errors="coerce").dropna()
+    if len(stamps) < 2:
+        return None
+    step = stamps.diff().dropna().median()
+    return float(step.total_seconds()) / 3600 if pd.notna(step) else None
+
+
+def _headline(indicators: dict) -> str:
+    """The one line the checklist shows as the car's key physical indicator."""
+    parts = []
+    if indicators.get("peer_residual_mean") is not None:
+        value = indicators["peer_residual_mean"]
+        parts.append(f"Peer residual {value:+.2f} °C")
+    if indicators.get("warmest_share") is not None:
+        parts.append(f"warmest car {indicators['warmest_share']:.0f}% of window")
+    if indicators.get("hours_above_1c"):
+        parts.append(f"{indicators['hours_above_1c']:.2f} h above +1 °C")
+    if indicators.get("duty_cycle") is not None:
+        parts.append(f"duty cycle {indicators['duty_cycle']:.0f}%")
+    return "; ".join(parts) if parts else "No comparable telemetry in this file"
+
+
+def _acv_cars(df: pd.DataFrame, cars: List[str], ranked: List[str], display: dict) -> dict:
+    """Rank, tier, margin and physical evidence per car, in formation order.
+
+    Tiering follows the ranking margin, not a fixed count: the runner-up is a
+    co-suspect only while it sits within ACV_NEAR_TIE of the car above it, so a
+    clear winner produces exactly one flagged car.
+    """
+    indicators = _acv_indicators(df, cars)
+    scores = {car: round(display[car] / 100, 3) for car in ranked}
+    margins, cluster = {}, [ranked[0]] if ranked else []
+    for position, car in enumerate(ranked):
+        following = ranked[position + 1] if position + 1 < len(ranked) else None
+        margins[car] = round(scores[car] - scores[following], 3) if following else None
+        if following and margins[car] is not None and margins[car] <= ACV_NEAR_TIE and car in cluster:
+            cluster.append(following)
+    rows = []
+    for car in sorted(cars, key=lambda value: (len(value), value)):
+        rank = ranked.index(car) + 1 if car in ranked else None
+        tier = "nominal"
+        if rank == 1:
+            tier = "primary"
+        elif car in cluster:
+            tier = "co_suspect"
+        position = int(car) if car.isdigit() else None
+        rows.append({
+            "car": car,
+            "position": position,
+            "car_type": "Cab" if position in ACV_CAB_POSITIONS else "Trailer",
+            "rank": rank,
+            "score": scores.get(car),
+            "margin_to_next": margins.get(car),
+            "near_tie": bool(margins.get(car) is not None and margins[car] <= ACV_NEAR_TIE),
+            "tier": tier,
+            "indicators": indicators.get(car, {}),
+            "headline": _headline(indicators.get(car, {})),
+        })
+    return {
+        "rows": rows,
+        "cluster": cluster if len(cluster) > 1 else [],
+        "near_tie_threshold": ACV_NEAR_TIE,
+        "car_type_source": "formation convention (cars 1 and 8 are cabs); not present in the telemetry",
+    }
 
 
 def _acv_context(df: pd.DataFrame, cars: List[str]) -> dict:
@@ -198,6 +315,7 @@ def predict_acv(files: List[UploadFile] = File(...)):
             # close call between two cars, which the engineer needs to see.
             "lead_over_next": (round(display_scores[ranked[0]] - display_scores[ranked[1]], 1)
                                if len(ranked) > 1 else None),
+            "consist": _acv_cars(df, cars, ranked, display_scores),
             "context": _acv_context(df, cars),
         })
 

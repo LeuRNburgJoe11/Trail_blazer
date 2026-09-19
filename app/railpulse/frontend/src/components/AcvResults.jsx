@@ -1,4 +1,5 @@
 import TrainDiagram from "./TrainDiagram";
+import ConsistChecklist from "./ConsistChecklist";
 import { Term } from "./Glossary";
 
 const MISSING = "Not reported";
@@ -40,7 +41,15 @@ export default function AcvResults({ data }) {
       {data.rows.map((row) => {
         const context = row.context ?? {};
         const flagged = row.flagged_car ?? row.ranked_cars[0];
-        const cars = inFormationOrder(row.ranked_cars);
+        // Older payloads carry no consist block; fall back to bare ranking order.
+        const consist = row.consist ?? {
+          rows: inFormationOrder(row.ranked_cars).map((car) => ({
+            car, position: Number(car), rank: row.ranked_cars.indexOf(car) + 1,
+            score: row.display_scores[car] / 100, tier: car === flagged ? "primary" : "nominal",
+            headline: "Indicator breakdown unavailable for this payload",
+          })),
+          cluster: [], near_tie_threshold: null, car_type_source: null,
+        };
         const index = row.display_scores[flagged];
         const deviation = context.indoor_deviation_by_car?.[flagged];
         const window = [whenever(context.time_start), whenever(context.time_end)]
@@ -103,18 +112,17 @@ export default function AcvResults({ data }) {
               </section>
             </div>
 
-            <h3 className="section-label">Where -- train formation</h3>
+            <h3 className="section-label">Where &mdash; train formation</h3>
             <TrainDiagram
-              cars={cars}
-              flagged={flagged}
-              faultLabel="Suspected refrigerant leak"
-              faultValue={`Suspicion ${index}/100`}
-              valueByCar={context.indoor_deviation_by_car}
-              valueUnit={"\u00b0"}
-              valueTitle={"Median cabin temperature minus the fleet median, in \u00b0C"}
+              cars={consist.rows}
+              cluster={consist.cluster}
+              nearTieThreshold={consist.near_tie_threshold}
+              carTypeSource={consist.car_type_source}
             />
 
-            <h3 className="section-label">Why -- ranking across all cars</h3>
+            <ConsistChecklist cars={consist.rows} nearTieThreshold={consist.near_tie_threshold} />
+
+            <h3 className="section-label">Why &mdash; ranking across all cars</h3>
             <div className="bar-chart">
               {row.ranked_cars.map((car) => (
                 <div className="bar-row" key={car}>

@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# local SSR render checks
+.ssrtmp
+__ssr*.jsx
+__payload.json
