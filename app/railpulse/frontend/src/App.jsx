@@ -4,11 +4,12 @@ import Dropzone from "./components/Dropzone";
 import DoorResults from "./components/DoorResults";
 import AcvResults from "./components/AcvResults";
 import RailResults from "./components/RailResults";
+import ShmResults from "./components/ShmResults";
 import RailDashboard from "./components/RailDashboard";
 import Glossary, { Term } from "./components/Glossary";
 import { TERMS } from "./terms";
 import Icon from "./components/Icon";
-import { getStatus, predictDoor, predictAcv, predictRail, downloadCsv } from "./api";
+import { getStatus, predictDoor, predictAcv, predictRail, predictShm, downloadCsv } from "./api";
 
 // `icon` pairs every subsystem label with a glyph, so a tab is not identified
 // by an acronym alone -- the acronyms themselves are defined in the glossary.
@@ -16,12 +17,12 @@ const SUBSYSTEMS = [
   { key: "door", label: "Door", icon: "door", accept: ".csv", hint: "Continuous door-controller stream (.csv)" },
   { key: "acv", label: "ACV", icon: "acv", term: "ACV", accept: ".xlsx", hint: "ACV case file (.xlsx)" },
   { key: "rail", label: "Rail corrugation", icon: "rail", accept: ".csv", hint: "1-second axle-box recording (.csv) -- select all at once" },
-  { key: "shm", label: "SHM", icon: "shm", term: "SHM", disabled: true, hint: "Not implemented yet" },
+  { key: "shm", label: "SHM", icon: "shm", term: "SHM", accept: ".csv", hint: "Headerless stress recordings (.csv) -- select all at once" },
 ];
 
-const PREDICTORS = { door: predictDoor, acv: predictAcv, rail: predictRail };
-const RESULT_COMPONENTS = { door: DoorResults, acv: AcvResults, rail: RailResults };
-const SUBMISSION_FILENAMES = { door: "door_predictions.csv", acv: "acv_predictions.csv", rail: "rail_predictions.csv" };
+const PREDICTORS = { door: predictDoor, acv: predictAcv, rail: predictRail, shm: predictShm };
+const RESULT_COMPONENTS = { door: DoorResults, acv: AcvResults, rail: RailResults, shm: ShmResults };
+const SUBMISSION_FILENAMES = { door: "door_predictions.csv", acv: "acv_predictions.csv", rail: "rail_predictions.csv", shm: "shm_predictions.csv" };
 
 export default function App() {
   const [active, setActive] = useState("door");

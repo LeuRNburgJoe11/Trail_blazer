@@ -21,6 +21,7 @@ export async function getStatus() {
 export const predictDoor = (files) => postFiles("/api/door/predict", files);
 export const predictAcv = (files) => postFiles("/api/acv/predict", files);
 export const predictRail = (files) => postFiles("/api/rail/predict", files);
+export const predictShm = (files) => postFiles("/api/shm/predict", files);
 
 export function downloadCsv(filename, csvText) {
   const blob = new Blob([csvText], { type: "text/csv" });

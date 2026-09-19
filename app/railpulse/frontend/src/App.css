@@ -1646,3 +1646,154 @@ body { background: var(--surface-0); }
   font-size: 9px;
   opacity: 0.9;
 }
+
+/* ==========================================================================
+   SHM panel -- fatigue damage is a magnitude, so no status colours here
+   ========================================================================== */
+.methods {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.method {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-2);
+}
+
+.method__step {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.method__title { margin: 0; font-size: 13.5px; font-weight: 600; }
+
+.method__detail {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.recs { display: flex; flex-direction: column; gap: 4px; }
+
+.rec {
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+}
+
+.rec:hover { background: var(--surface-2); }
+.rec--warned { border-color: var(--status-tie); }
+
+.rec__row {
+  display: grid;
+  grid-template-columns: minmax(96px, 1fr) minmax(120px, 4fr) 72px auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.rec__file {
+  font-size: 12.5px;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+.rec__track {
+  height: 10px;
+  border-radius: 5px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.rec__fill {
+  height: 100%;
+  border-radius: 5px;
+  background: var(--accent);
+}
+
+.rec__value {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.rec__toggle {
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  border-radius: 6px;
+  padding: 2px 9px;
+  font-size: 11px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.rec__warning {
+  margin: 5px 0 0;
+  font-size: 11.5px;
+  color: var(--status-tie);
+  line-height: 1.45;
+}
+
+.rec__evidence {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+
+.rec__grid {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 6px 14px;
+}
+
+.pair { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; }
+.pair dt { color: var(--text-muted); }
+.pair dd {
+  margin: 0;
+  font-family: ui-monospace, Menlo, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.callout {
+  margin-top: 1.25rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.callout__title { margin: 0 0 0.4rem; font-size: 13px; font-weight: 600; }
+.callout p { margin: 0; font-size: 12.5px; line-height: 1.6; color: var(--text-secondary); }
+
+.caveats {
+  margin-top: 1rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--status-tie);
+  border-radius: 8px;
+  background: var(--surface-1);
+}
+
+.caveats__title { margin: 0 0 0.5rem; font-size: 13px; font-weight: 600; }
+
+.caveats ul {
+  margin: 0;
+  padding-left: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.caveats li { font-size: 12.5px; line-height: 1.55; color: var(--text-secondary); }

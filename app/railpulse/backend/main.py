@@ -47,6 +47,31 @@ REGISTRY_DIR = "./registry"
 PROTOTYPE_DIR = Path(__file__).resolve().parent.parent
 ROOT_REPO = PROTOTYPE_DIR.parents[1]
 DOOR_INFER = PROTOTYPE_DIR / "scripts/door_infer.py"
+SHM_INFER = PROTOTYPE_DIR / "scripts/shm_infer.py"
+
+# How the damage number is produced. Stated so the panel can explain the method
+# without restating it in the UI, where it would drift from the pipeline.
+SHM_METHOD = {
+    "steps": [
+        {"step": "Cycle extraction", "title": "Rainflow counting (ASTM E1049)",
+         "detail": "Decomposes the stress time series into closed hysteresis loops. "
+                   "Each cycle carries an amplitude; half cycles count 0.5."},
+        {"step": "S-N relation", "title": "Basquin power law",
+         "detail": "Relates amplitude to endurance life through (amplitude ** m) * N = C. "
+                   "The exponent is selected by the pipeline, not assumed from a material spec."},
+        {"step": "Damage summation", "title": "Palmgren-Miner linear rule",
+         "detail": "Sums the fractional damage of every counted cycle: D = sum(n_i / N_i)."},
+    ],
+    "caveats": [
+        "Stress units are unspecified in the source data, so D is dimensionless and comparable "
+        "only between these recordings.",
+        "D is the damage accumulated within one recording. It is not remaining life, a forecast, "
+        "or a maintenance deadline.",
+        "No approved damage threshold exists for this fleet. Alert bands, severity tiers and "
+        "inspection intervals need domain-approved policy and independent validation "
+        "(docs/DECISION_LAYER.md).",
+    ],
+}
 
 # Operating context the UI shows as "readings in". Every entry is optional:
 # case files genuinely carry different parameter sets, so a missing name must
@@ -465,4 +490,40 @@ def predict_rail(files: List[UploadFile] = File(...)):
         "rows": rows,
         "submission_csv": submission.to_csv(index=False),
         "model_score": record.fold_scores.get("cv_macro_f1_mean"),
+    }
+
+
+@app.post("/api/shm/predict")
+def predict_shm(files: List[UploadFile] = File(...)):
+    """SHM runs on the canonical root pipeline, isolated in a subprocess.
+
+    All recordings go to one child process so the artifact is loaded once:
+    rainflow counting over ~581k samples per file dominates the runtime, and
+    reloading the model per file would only add to it.
+    """
+    sources, names = [], []
+    for upload in files:
+        sources.append(_save_upload(upload, ".csv"))
+        names.append(upload.filename)
+    destination = Path(tempfile.gettempdir()) / f"shm_{os.getpid()}_{len(names)}.json"
+
+    environment = dict(os.environ)
+    environment["PYTHONPATH"] = str(ROOT_REPO / "src")
+    finished = subprocess.run(
+        [sys.executable, str(SHM_INFER), "--inputs", *map(str, sources),
+         "--names", *names, "--output", str(destination)],
+        capture_output=True, text=True, env=environment, cwd=str(PROTOTYPE_DIR),
+    )
+    if finished.returncode != 0:
+        detail = (finished.stderr or finished.stdout or "").strip().splitlines()
+        raise HTTPException(500, f"SHM inference failed: {detail[-1] if detail else 'unknown error'}")
+    rows = json.loads(destination.read_text(encoding="utf-8"))["rows"]
+
+    # Official SHM schema is file_id,prediction -- evidence stays out of it.
+    submission = pd.DataFrame([{"file_id": r["file_id"], "prediction": r["prediction"]} for r in rows],
+                              columns=["file_id", "prediction"])
+    return {
+        "rows": rows,
+        "submission_csv": submission.to_csv(index=False),
+        "method": SHM_METHOD,
     }
