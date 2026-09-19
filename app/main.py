@@ -159,6 +159,127 @@ if subsystem == "rail":
             st.warning(f"{len(flagged)} file(s) require rail-side review.")
             st.dataframe(flagged, hide_index=True, width="stretch")
 
+if subsystem == "shm":
+    st.divider()
+    st.header("Structural health monitoring dashboard")
+    st.caption(
+        "Cumulative fatigue-damage regression via ASTM E1049 Rainflow counting "
+        "+ calibrated 5th-power Basquin law (physics_5). "
+        "Miner\u2019s rule: D = \u03a3(n\u1d62 / N\u1d62), N\u1d62 = C / \u03c3\u2090\u1d62\u2075. "
+        "D \u2265 1.0 indicates crack-initiation risk. "
+        "Model output is not remaining useful life \u2014 refer to engineering authority before maintenance action."
+    )
+
+    # --- Physics & sensor overview ---
+    shm_cols = st.columns([1.2, 1, 1])
+    with shm_cols[0]:
+        sig_diag = ROOT / "outputs" / "shm" / "signal_and_cycle_diagnostics.png"
+        if sig_diag.is_file():
+            st.image(str(sig_diag), caption="Signal & rainflow-cycle diagnostics (training set)", use_container_width=True)
+        else:
+            st.info("Diagnostic image unavailable in this checkout.")
+    with shm_cols[1]:
+        st.subheader("Physics model")
+        st.metric("Selected model", "physics_5")
+        st.metric("Fatigue exponent (m)", "5.0  (Basquin / ASTM E1049)")
+        st.metric("Damage rule", "Miner linear accumulation")
+        st.markdown("**Input**: stress amplitude time-series (CSV)")
+        st.markdown("**Rainflow**: half-cycle counts per amplitude bin")
+        st.markdown("**Output**: cumulative damage index D \u2208 [0, \u221e)")
+    with shm_cols[2]:
+        st.subheader("Validation protocol")
+        st.metric("CV scheme", "2\u00d78 outer / 4 inner folds")
+        st.metric("Training files", "64")
+        st.metric("Score formula", "max(0, 1 \u2212 MAPE)")
+        st.markdown("File-level cross-validation \u2014 no sample leakage across files.")
+
+    # --- Nested-CV validation evidence ---
+    run_report_shm = Path(model_directory).parent / "run_summary.json"
+    training_summary = ROOT / "outputs" / "shm" / "training_summary.json"
+    shm_validation = {}
+    if run_report_shm.is_file():
+        shm_validation = json.loads(run_report_shm.read_text(encoding="utf-8")).get("validation", {}).get("shm", {})
+    if not shm_validation and training_summary.is_file():
+        shm_validation = json.loads(training_summary.read_text(encoding="utf-8")).get("nested_evaluation", {})
+
+    if shm_validation:
+        st.subheader("Model evidence (nested cross-validation)")
+        ev_cols = st.columns(5)
+        mape_val = shm_validation.get("mape", float("nan"))
+        score_val = shm_validation.get("score", float("nan"))
+        mae_val = shm_validation.get("mae", float("nan"))
+        worst_ape = shm_validation.get("worst_ape", float("nan"))
+        fold_std = shm_validation.get("fold_mape_std", float("nan"))
+        ev_cols[0].metric("Nested MAPE", f"{mape_val * 100:.2f} %")
+        ev_cols[1].metric("Score (1 \u2212 MAPE)", f"{score_val:.4f}")
+        ev_cols[2].metric("Nested MAE", f"{mae_val:.4f}")
+        ev_cols[3].metric("Worst-fold APE", f"{worst_ape * 100:.1f} %")
+        ev_cols[4].metric("Fold MAPE std", f"{fold_std * 100:.2f} %")
+        st.caption(
+            f"n_files={shm_validation.get('n_files', '?')}, "
+            f"n_predictions={shm_validation.get('n_predictions', '?')}. "
+            "Nested CV prevents model-selection bias; score reported here differs from held-out test score."
+        )
+        val_diag = ROOT / "outputs" / "shm" / "validation_diagnostics.png"
+        if val_diag.is_file():
+            with st.expander("Validation diagnostics (predicted vs actual)"):
+                st.image(str(val_diag), use_container_width=True)
+    else:
+        st.info("Run evidence unavailable for this model directory. Live predictions can still be reviewed after analysis.")
+
+    # --- Current batch results ---
+    shm_export = st.session_state.exports.get("shm")
+    if shm_export:
+        shm_df = pd.read_csv(io.BytesIO(shm_export))
+
+        def _rag(d):
+            try:
+                v = float(d)
+            except (TypeError, ValueError):
+                return "Unknown"
+            if v >= 0.40:
+                return "\U0001f534 Red"
+            if v >= 0.10:
+                return "\U0001f7e0 Amber"
+            return "\U0001f7e2 Green"
+
+        damage_col = next((c for c in shm_df.columns if "damage" in c.lower()), None)
+        if damage_col:
+            shm_df["RAG status"] = shm_df[damage_col].apply(_rag)
+            rag_counts = shm_df["RAG status"].value_counts()
+
+            st.subheader("Current batch")
+            batch_cols = st.columns(4)
+            batch_cols[0].metric("Files analysed", len(shm_df))
+            batch_cols[1].metric("\U0001f7e2 Green (D < 0.10)", int(rag_counts.get("\U0001f7e2 Green", 0)))
+            batch_cols[2].metric("\U0001f7e0 Amber (0.10 \u2013 0.40)", int(rag_counts.get("\U0001f7e0 Amber", 0)))
+            batch_cols[3].metric("\U0001f534 Red (D \u2265 0.40)", int(rag_counts.get("\U0001f534 Red", 0)))
+
+            rag_order = ["\U0001f7e2 Green", "\U0001f7e0 Amber", "\U0001f534 Red"]
+            rag_series = rag_counts.reindex(rag_order, fill_value=0).rename("files")
+            st.bar_chart(rag_series, height=180, color="#e45756")
+
+            red_files = shm_df[shm_df["RAG status"] == "\U0001f534 Red"]
+            amber_files = shm_df[shm_df["RAG status"] == "\U0001f7e0 Amber"]
+            if not red_files.empty:
+                st.warning(
+                    f"\U0001f534 {len(red_files)} file(s) with D \u2265 0.40 \u2014 "
+                    "priority weld NDT inspection recommended. Refer to engineering authority."
+                )
+            if not amber_files.empty:
+                st.info(f"\U0001f7e0 {len(amber_files)} file(s) in Amber zone (0.10 \u2264 D < 0.40) \u2014 schedule routine inspection.")
+            if red_files.empty and amber_files.empty:
+                st.success("All files in current batch are Green (D < 0.10). No immediate inspection triggered.")
+
+            display_cols = (
+                [c for c in ["file_id", damage_col, "RAG status"] if c in shm_df.columns]
+                + [c for c in shm_df.columns if c not in ["file_id", damage_col, "RAG status"]]
+            )
+            st.dataframe(shm_df[display_cols], hide_index=True, use_container_width=True)
+        else:
+            st.dataframe(shm_df, hide_index=True, use_container_width=True)
+            st.warning("Could not identify a damage column for RAG classification.")
+
 for name, failure in st.session_state.failures.items():
     st.error(f"{name.upper()} analysis rejected: {failure['error']}")
     st.caption("No export is available for the rejected subsystem batch. Fix the input/model issue and retry; other subsystem results are unchanged.")
