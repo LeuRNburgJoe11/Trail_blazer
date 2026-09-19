@@ -34,8 +34,7 @@ PARAMETER_ALIASES = {
         "ACV Control Mode"
     ],
     "ACV Information Valid": [
-        "ACV Information Valid",
-        "ACV Grounding Detection Status"  # Roughly analogous if true data valid isn't there, or None
+        "ACV Information Valid"
     ]
 }
 
@@ -45,13 +44,13 @@ def resolve_parameter(car_df: pd.DataFrame, canonical_name: str) -> pd.Series:
     Returns the series if found, otherwise returns a series of NaNs.
     """
     if canonical_name in PARAMETER_ALIASES:
-        aliases = PARAMETER_ALIASES[canonical_name]
+        aliases = list(dict.fromkeys([canonical_name, *PARAMETER_ALIASES[canonical_name]]))
     else:
         aliases = [canonical_name]
         
     for alias in aliases:
         if alias in car_df.columns:
-            return car_df[alias]
+            return car_df[alias].replace(["None", "null", "NULL", "NA", "N/A", ""], float("nan"))
             
     # Return empty series if not found
     return pd.Series(float('nan'), index=car_df.index, name=canonical_name)
@@ -66,4 +65,3 @@ def standardize_car_telemetry(car_df: pd.DataFrame) -> pd.DataFrame:
         standardized[canonical_name] = resolve_parameter(car_df, canonical_name)
         
     return standardized
-

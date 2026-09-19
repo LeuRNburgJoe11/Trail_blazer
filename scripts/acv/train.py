@@ -33,6 +33,7 @@ def main():
     print("Evaluating Baseline Model...")
     baseline_results = evaluate_baseline_loocv(features_df, labels_map)
     baseline_summary = generate_summary_table(baseline_results, "Baseline")
+    baseline_results.to_csv(os.path.join(output_dir, "validation_results_baseline.csv"), index=False)
     print(baseline_summary.to_string(index=False))
     summaries.append(baseline_summary)
     

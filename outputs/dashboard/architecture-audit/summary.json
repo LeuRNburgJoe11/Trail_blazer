@@ -1,0 +1,110 @@
+{
+  "subsystems": [
+    {
+      "subsystem": "door",
+      "uploaded_files": 1,
+      "findings": 38,
+      "review_required": 8,
+      "flagged_candidates": 8,
+      "quality_flags": 0,
+      "expected_files": 1,
+      "missing_filenames": [],
+      "unexpected_filenames": [],
+      "filename_coverage": "complete",
+      "held_out_score": null
+    },
+    {
+      "subsystem": "acv",
+      "uploaded_files": 1,
+      "findings": 1,
+      "review_required": 1,
+      "flagged_candidates": 1,
+      "quality_flags": 1,
+      "expected_files": 1,
+      "missing_filenames": [],
+      "unexpected_filenames": [],
+      "filename_coverage": "complete",
+      "held_out_score": null
+    },
+    {
+      "subsystem": "rail",
+      "uploaded_files": 68,
+      "findings": 68,
+      "review_required": 15,
+      "flagged_candidates": 6,
+      "quality_flags": 9,
+      "expected_files": 68,
+      "missing_filenames": [],
+      "unexpected_filenames": [],
+      "filename_coverage": "complete",
+      "held_out_score": null
+    },
+    {
+      "subsystem": "shm",
+      "uploaded_files": 16,
+      "findings": 16,
+      "review_required": 16,
+      "flagged_candidates": 0,
+      "quality_flags": 2,
+      "expected_files": 16,
+      "missing_filenames": [],
+      "unexpected_filenames": [],
+      "filename_coverage": "complete",
+      "held_out_score": null
+    }
+  ],
+  "scoring": {
+    "basis": "held_out",
+    "status": "unscored",
+    "attempted": [
+      "door",
+      "acv",
+      "rail",
+      "shm"
+    ],
+    "unscored": [
+      "door",
+      "acv",
+      "rail",
+      "shm"
+    ],
+    "overall_score": null,
+    "average_score": null,
+    "subsystem_scores": {
+      "door": null,
+      "acv": null,
+      "rail": null,
+      "shm": null
+    },
+    "note": "Requires organiser-held ground truth; never inferred from predictions."
+  },
+  "coverage_note": "Filename coverage only; arbitrary uploads are not automatically the official test set.",
+  "verification": {
+    "door": {
+      "rows": 38,
+      "official_csv_unchanged": true,
+      "sha256": "2f94f8f5e2ccd6bce223a7c2f9fd2c7b974aa17cbce3d7bc3521dd100d7a079b"
+    },
+    "acv": {
+      "rows": 1,
+      "official_csv_unchanged": true,
+      "sha256": "7b5019737540841331759d9631d920cf355604bee74f2d216ff6dfe7fa1f1f9d"
+    },
+    "rail": {
+      "rows": 68,
+      "official_csv_unchanged": true,
+      "sha256": "70da01959a2b021f3b2fea7bf989c7334083b4e103ca5c1099a9c44371b108f8"
+    },
+    "shm": {
+      "rows": 16,
+      "official_csv_unchanged": true,
+      "sha256": "36d80942946eb362ce90fa879ff6e924b4bf7121b1f7824abca5fb9c331c11f7"
+    }
+  },
+  "source_sha256": {
+    "src/railpulse/core/decisions.py": "5467b70403ba6e128d4699790e5d1d30d1291050116aea9bb140e0b59b7061b4",
+    "src/railpulse/core/dashboard.py": "83edb70c1b52459f0648c5469ee8bad12807276e28fa613ff3c998b1d37f60e0",
+    "src/railpulse/core/scoring.py": "d22595d08848babbc913e797074fe14975b09606f0942d9ec2d1f68c70783dd8",
+    "app/main.py": "e16f25cc7b451e84b4482490f0c3f4c6683369244abdf563e705659c126e3ed7"
+  }
+}

@@ -19,23 +19,23 @@ def extract_control_features(car_df: pd.DataFrame, timestamps: pd.Series) -> Dic
         
         # State changes
         # forward fill to avoid counting NaNs as state changes if we want to ignore missing gaps
-        mode_filled = mode_str.replace("nan", np.nan).ffill()
-        state_changes = (mode_filled != mode_filled.shift()).sum() - 1 # -1 for first element
+        mode_filled = mode_str.replace(["nan", "none", ""], np.nan)
+        state_changes = (mode_filled.notna() & mode_filled.shift().notna() & mode_filled.ne(mode_filled.shift())).sum()
         state_changes = max(0, state_changes)
         
         features["number_of_state_changes"] = float(state_changes)
         
-        duration_hours = 1.0
+        duration_hours = float('nan')
         if pd.api.types.is_datetime64_any_dtype(timestamps) and len(timestamps) > 1:
             duration_hours = (timestamps.max() - timestamps.min()).total_seconds() / 3600.0
             if duration_hours <= 0:
-                duration_hours = 1.0
+                duration_hours = float('nan')
         
         features["state_transition_rate_per_hour"] = float(state_changes / duration_hours)
         
         # Fraction of time in cooling
         # E.g., 'cooling', 'cool', 'refrigeration'
-        cooling_mask = mode_str.str.contains("cool|refrigeration", na=False, regex=True)
+        cooling_mask = mode_str.str.contains("cool|refrigeration", na=False, regex=True) & ~mode_str.str.contains(r"\b(?:no|not|off|inactive|disabled)\b", regex=True)
         features["active_cooling_duty_cycle"] = float(cooling_mask.mean())
         
         # longest continuous state duration
@@ -60,4 +60,3 @@ def extract_control_features(car_df: pd.DataFrame, timestamps: pd.Series) -> Dic
         features["load_halved_fraction"] = float('nan')
         
     return features
-

@@ -13,6 +13,8 @@ from .speed import estimate_speed
 
 
 def extract_spatial_features(values: np.ndarray) -> dict[str, float]:
+    if values.ndim != 2 or values.shape != (10_000, 129) or not np.isfinite(values).all():
+        raise ValueError("Spatial Rail features require 10,000 finite samples x 129 channels")
     speed = estimate_speed(values[:, 0])
     result = {}
     for side in range(2):
@@ -43,6 +45,8 @@ class PooledSideClassifier:
         self.model = GradientBoostingClassifier(random_state=42)
 
     def fit(self, rows, labels):
+        if not rows or len(rows) != len(labels) or not set(labels) <= {"Normal", "Side I", "Side II"}:
+            raise ValueError("Pooled Rail fit requires matching nonempty rows and valid labels")
         self.feature_names = [name[3:] for name in rows[0] if name.startswith("s0_")]
         matrix, targets = [], []
         for row, label in zip(rows, labels):
@@ -53,6 +57,10 @@ class PooledSideClassifier:
         return self
 
     def predict(self, rows):
+        if not rows:
+            return []
+        if not hasattr(self, "feature_names"):
+            raise ValueError("Pooled Rail model is not fitted")
         scores = [self.model.predict_proba(
             [[row[f"s{side}_{key}"] for key in self.feature_names] for row in rows]
         )[:, 1] for side in range(2)]

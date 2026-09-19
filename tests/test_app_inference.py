@@ -7,7 +7,7 @@ import pandas as pd
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-RUN = ROOT / "outputs/combined/merged-main"
+from railpulse.core.runtime import DEFAULT_RUN as RUN
 
 
 @pytest.mark.parametrize("subsystem,relative", [

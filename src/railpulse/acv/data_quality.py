@@ -29,9 +29,11 @@ def extract_data_quality_features(car_df: pd.DataFrame, timestamps: pd.Series) -
         valid_col = car_df["ACV Information Valid"]
         # Treat as valid if value is 1, 'Valid', etc. Assuming numeric > 0 or string.
         if pd.api.types.is_numeric_dtype(valid_col):
-            features["information_valid_fraction"] = (valid_col > 0).mean()
+            features["information_valid_fraction"] = (valid_col == 1).mean()
         else:
-            features["information_valid_fraction"] = (valid_col.astype(str).str.lower().str.contains("valid")).mean()
+            normalized = valid_col.astype("string").str.strip().str.lower()
+            known = normalized.isin(["valid", "invalid", "true", "false", "1", "0", "yes", "no"])
+            features["information_valid_fraction"] = float(normalized.isin(["valid", "true", "1", "yes"]).mean()) if known.any() else float('nan')
     else:
         features["information_valid_fraction"] = float('nan')
         
@@ -57,4 +59,3 @@ def extract_data_quality_features(car_df: pd.DataFrame, timestamps: pd.Series) -
         features["number_of_discontinuities"] = 0.0
         
     return features
-

@@ -12,10 +12,11 @@ from .spectral_features import extract_features
 
 def train(train_directory: str | Path, labels_path: str | Path) -> RailClassifier:
 	labels = load_labels(labels_path)
+	paths = list_recordings(train_directory)
+	if {path.name for path in paths} != set(labels):
+		raise ValueError("Rail training files and labels must match exactly")
 	rows, targets = [], []
-	for path in list_recordings(train_directory):
-		if path.name not in labels:
-			continue
+	for path in paths:
 		rows.append(extract_features(load_recording(path).values))
 		targets.append(labels[path.name])
 	if not rows:

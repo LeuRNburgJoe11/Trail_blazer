@@ -49,6 +49,8 @@ def analyse_acv(path: str, artifact_path: str = None) -> ACVResult:
         
         feature_schema = artifact["feature_schema"]
         model_type = artifact.get("model_type", "sklearn")
+        if model_type not in ("baseline", "sklearn"):
+            raise ValueError(f"Unsupported ACV model type: {model_type}")
         
         for col in feature_schema:
             if col not in features_df.columns:

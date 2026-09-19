@@ -31,7 +31,7 @@ def load_recording(path: str | Path) -> RailRecording:
 		if first != RAIL_COLUMNS:
 			raise ValueError(f"{path.name}: unexpected Rail header or channel order")
 		header = 0
-	frame = pd.read_csv(path, header=header, dtype=float)
+	frame = pd.read_csv(path, header=header, dtype=float, skip_blank_lines=False)
 	if frame.shape[1] != EXPECTED_COLUMNS:
 		raise ValueError(f"{path.name} has {frame.shape[1]} columns; expected {EXPECTED_COLUMNS}")
 	values = frame.to_numpy(dtype=float)
@@ -51,4 +51,8 @@ def load_labels(path: str | Path) -> dict[str, str]:
 	required = {"filename", "label"}
 	if not required.issubset(labels.columns):
 		raise ValueError("Rail labels must contain filename and label columns")
+	if labels.empty or labels.isna().any().any() or labels.filename.duplicated().any():
+		raise ValueError("Rail labels must be nonempty, complete and unique")
+	if not set(labels.label) <= {"Normal", "Side I", "Side II"}:
+		raise ValueError("Unknown Rail class")
 	return dict(zip(labels["filename"].astype(str), labels["label"].astype(str)))

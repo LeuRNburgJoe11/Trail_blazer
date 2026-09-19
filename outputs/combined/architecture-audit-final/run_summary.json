@@ -1,0 +1,167 @@
+{
+  "status": "complete",
+  "started_utc": "2026-09-19T01:49:50.050469+00:00",
+  "test_labels_available": false,
+  "validation": {
+    "door": {
+      "protocol": "chronological first 70% cycles fit / last 30% held out",
+      "iou_weighted_f1": 1.0,
+      "n_train_cycles": 77,
+      "n_validation_cycles": 33,
+      "n_final_fit_cycles": 110
+    },
+    "rail": {
+      "selected_model": "pooled_spatial",
+      "protocol": "5-fold file-level stratified CV, random_state=42",
+      "nested_selection_mean_macro_f1": 0.7264208058165293,
+      "nested_selection_protocol": "5 outer folds; 3 inner folds choose candidate strictly within outer training files",
+      "candidates": {
+        "extra_trees": {
+          "mean_fold_macro_f1": 0.6673954184676221,
+          "fold_macro_f1": [
+            0.7228070175438597,
+            0.8263888888888888,
+            0.5863945578231292,
+            0.54524627720504,
+            0.6561403508771929
+          ],
+          "pooled_oof_macro_f1": 0.7009287535603326
+        },
+        "pooled_spatial": {
+          "mean_fold_macro_f1": 0.7876384872646255,
+          "fold_macro_f1": [
+            0.8478331704138156,
+            0.7456575682382134,
+            0.7754050073637703,
+            0.7430555555555555,
+            0.826241134751773
+          ],
+          "pooled_oof_macro_f1": 0.7917044196113964
+        }
+      },
+      "n_training_files": 272,
+      "limitations": "CV used for model selection, not an unbiased post-selection estimate. Nearby recording/session grouping is unavailable; file-level CV may be optimistic."
+    },
+    "acv": {
+      "selected_model": "baseline",
+      "candidate_rank_decay": {
+        "baseline": 0.9791666666666666,
+        "logistic_regression": 0.8541666666666666,
+        "random_forest": 0.8541666666666666,
+        "gradient_boosting": 0.7291666666666666,
+        "linear_svm": 0.875
+      },
+      "protocol": "leave-one-case-out; scaler fitted within each fold",
+      "rank_decay_score": 0.9791666666666666,
+      "top_1_count": 5,
+      "n_cases": 6,
+      "limitations": "Only six independent cases; baseline was selected using these same cases."
+    },
+    "shm": {
+      "protocol": "existing frozen SHM nested-CV report (not rerun)",
+      "report": "outputs/shm/training_summary.json",
+      "report_sha256": "5bd3956d814de1857dd321284068f2c21702fbbe14c4a5248512f8644c55dcf7"
+    }
+  },
+  "predictions": {
+    "door": {
+      "input_files": 1,
+      "prediction_rows": 38,
+      "sha256": "2f94f8f5e2ccd6bce223a7c2f9fd2c7b974aa17cbce3d7bc3521dd100d7a079b",
+      "warnings": {}
+    },
+    "acv": {
+      "input_files": 1,
+      "prediction_rows": 1,
+      "sha256": "7b5019737540841331759d9631d920cf355604bee74f2d216ff6dfe7fa1f1f9d",
+      "warnings": {}
+    },
+    "rail": {
+      "input_files": 68,
+      "prediction_rows": 68,
+      "sha256": "70da01959a2b021f3b2fea7bf989c7334083b4e103ca5c1099a9c44371b108f8",
+      "warnings": {}
+    },
+    "shm": {
+      "input_files": 16,
+      "prediction_rows": 16,
+      "sha256": "36d80942946eb362ce90fa879ff6e924b4bf7121b1f7824abca5fb9c331c11f7",
+      "warnings": {
+        "test03.csv": [
+          "Outside observed training range: amplitude_max"
+        ],
+        "test06.csv": [
+          "Outside observed training range: cycle_count"
+        ]
+      }
+    }
+  },
+  "git_commit": "7316ad47c474bf0807aa1d06fe96ee85058748a0",
+  "git_dirty_at_start": true,
+  "runtime_versions": {
+    "numpy": "2.3.2",
+    "pandas": "2.3.2",
+    "scipy": "1.16.1",
+    "scikit-learn": "1.7.1",
+    "joblib": "1.5.2",
+    "rainflow": "3.2.0",
+    "openpyxl": "3.1.5"
+  },
+  "source_sha256": {
+    "src/railpulse/__init__.py": "12a23aada3ca0e24dc52b57cff92a86b51516969912467dc09dd7ebab1df33e9",
+    "src/railpulse/acv/__init__.py": "1604393a696370b660c5fc0ed9bcf3f99496e6f920e9c49a39d4d5e7c51d7c23",
+    "src/railpulse/acv/control_features.py": "025790b0de6d4eacd17712d8fb5acfa22dd04ba490183d8c8883d1fa4df96c6f",
+    "src/railpulse/acv/data_quality.py": "1d4e295219ae5a11a0a5812ac35878800698da34fbc616be784015cc1ed4c5a9",
+    "src/railpulse/acv/feature_pipeline.py": "fb62629d8ee47085322c204fb7dd77eba81f7da3e87a37df8a2894b8b3a0a1e9",
+    "src/railpulse/acv/loader.py": "c59bce7cc20c01576c0cff1e2c437e80604296d088188c7a2471313a25222483",
+    "src/railpulse/acv/metrics.py": "aa47de9a9fc6f33bc705e5c93eee0e3e45a2f255507eca80a269415427b1d4ae",
+    "src/railpulse/acv/peer_features.py": "9103f3eb5cd14be29095c6df3513e494ed55fcb24001771d2299c7a4ae6bcfbf",
+    "src/railpulse/acv/pipeline.py": "3cad7074bfe531dd0e9db109e1c10e8edac701c801857e6c4d7241df56b77744",
+    "src/railpulse/acv/preprocessing.py": "7593c6624d0be5aa235d457f87cbaf771057942d24717053c7f7fccd0d1d4aed",
+    "src/railpulse/acv/ranking.py": "e9da4769fa0200d16d724c7e879302a6178f7dc7f3cd37189fb211afeac6a786",
+    "src/railpulse/acv/schema.py": "e864f9d6da4720170b04b70a4143f9c587f5dd198dfd30fdd424595156507c9e",
+    "src/railpulse/acv/thermal_features.py": "721d8bc61bf434a9eb367cce0383a2519c9c2ed7f2266832c9ce12a439254eec",
+    "src/railpulse/acv/validation.py": "9a9a5e5bff16fb5e9d7ed810feb49d2edf601cdb6543fd8c48249e1593fbaab3",
+    "src/railpulse/core/__init__.py": "f39c47d3d84992c857fb39ab9732d30959f7ea3763d95b3a0df703a40681c7fd",
+    "src/railpulse/core/bundle_contract.py": "574c2c544d749291cc0d4f4a3ce08d25458342a43d934ee472eebfd9cff9b0f3",
+    "src/railpulse/core/combined.py": "e35853a7903d6e43cb3c041cc833d1974d2bfef16647e1ea5b8d2c063df079f4",
+    "src/railpulse/core/dashboard.py": "83edb70c1b52459f0648c5469ee8bad12807276e28fa613ff3c998b1d37f60e0",
+    "src/railpulse/core/data_preparation.py": "caf115fad0609cd05e4526e23fd3a406ef6491738c2cd86fcaecec9b942fef11",
+    "src/railpulse/core/data_validation.py": "dcbca861b1d41e1b4df637ddc0ed6d4f876cc36011da94dbb50614bcda5633f2",
+    "src/railpulse/core/decisions.py": "5467b70403ba6e128d4699790e5d1d30d1291050116aea9bb140e0b59b7061b4",
+    "src/railpulse/core/inference.py": "73d91275324c0e05e378772fca800432eb94ecd4c34620e7f149ab6b11b66506",
+    "src/railpulse/core/metrics.py": "23aa966642e6cca6a525d3e7b299fefcfb360a8a123af54b5dd2cfa4e33ed16d",
+    "src/railpulse/core/predictions.py": "b86493b7908ce36933f2f7878155c25dd9fde67e97da84b6c39f818d03a79f79",
+    "src/railpulse/core/registry.py": "5d50d8c22eea63a44a70bde90f38df8307d13303979488d02cfa97c71894408d",
+    "src/railpulse/core/runtime.py": "d72e2bda2d8c5cba00c5a53ded357ab3479ee0726fe85405de89c762adcf1b13",
+    "src/railpulse/core/schemas.py": "460efd92d5b00226edcea6c4eab6babaa397f42236be24f1aeda1429c9877e93",
+    "src/railpulse/core/scoring.py": "d22595d08848babbc913e797074fe14975b09606f0942d9ec2d1f68c70783dd8",
+    "src/railpulse/core/submission.py": "3aa7d0f192be8551e34f870a637a01107dfce4779c0eadda5a142bb1893adbc6",
+    "src/railpulse/door/__init__.py": "cf336de7482b881d8dedf6b456239567b2e6c5d07840e6bef4256e069ca72c35",
+    "src/railpulse/door/features.py": "12cd343b98d016183049558a06548f03f85c7c7a42de57bda328abe5f02894ad",
+    "src/railpulse/door/loader.py": "9fb4544b91764937c78283da119e7d43b729ae80fd31d9ade347619984b0b463",
+    "src/railpulse/door/pipeline.py": "6039749bd54cc32b1c785ae01ad886b2ebf88ec5359a31b36f401b52791f92d0",
+    "src/railpulse/door/segmentation.py": "707a26078aa0a7aee1e6b78e450962db451dca7e1b4bb3a234525f830ade5665",
+    "src/railpulse/rail/__init__.py": "39310273649f3d9807c11730d5cad92c8c0e40b5adfdd152fcb076ff855e5a0b",
+    "src/railpulse/rail/loader.py": "fbe9919ffcb7d3cf9c7e7a86d08a5f4c32062edd4a4657418f231f9883774eae",
+    "src/railpulse/rail/pipeline.py": "ea5c08890f25e939dc876051c7a83b20a0bb9267059a66451377eab9747d68aa",
+    "src/railpulse/rail/side_model.py": "f6b82fc3c32c58365284c90f5f2bbbf72daf33f477a895b3f0a84b8fcf0770fc",
+    "src/railpulse/rail/spatial.py": "ae1796343d3dae34590d52080cb532ee7779518549cf5ff581a4310d3ba9a577",
+    "src/railpulse/rail/spectral_features.py": "64c2c8bbda59b3b025158b19673f8f32d85ad545f6de50f15de24aa56f23d1e7",
+    "src/railpulse/rail/speed.py": "22d6fc1957ebc09046758b72ecef4e8588e60de8d5ef13e96c0c697135e485b5",
+    "src/railpulse/shm/__init__.py": "a6f02f0414b09daa0a804b32f5d04663df7f586edc398a256accb30ca9833325",
+    "src/railpulse/shm/loader.py": "24c6912aea3ab499eb269b346edca7c247905d94e586e9abeaa6da9656a5bdae",
+    "src/railpulse/shm/metrics.py": "f8ff58fe49630a56a375e2089255bfa52167b209627145baa75b4f2855697351",
+    "src/railpulse/shm/pipeline.py": "eb0fecada49b9dc4ed51ae5403df7478868cfd84ee94d9f60c669e04435c9b71",
+    "src/railpulse/shm/rainflow_features.py": "db96c3f9777b896e35e913bbb64a18096f46693b024d28add4d8bf8cc24924c3",
+    "src/railpulse/shm/regression.py": "4ededb12fd24c8d08869e0102d93fd7653577849066dfb26cf4ea2bf9e81239d",
+    "src/railpulse/shm/uploads.py": "97ecbced55a6ecc5d4c8c09e95b7c7064b0d9ca9fd6ccb8138d5f813983fdea3",
+    "src/railpulse/shm/validation.py": "1365b81aa3b068b49474f5a5fd60564a6321f858b05bff391a59f4b81bf0570f"
+  },
+  "dataset_commit": "966c976005db2e3e40a691cff268fdb8f396a5df",
+  "dataset_lock_sha256": "aea1fa15ccd977f676606ec876d68771e7e2e230595ae26bbc9b33f42cfa1e24",
+  "data_integrity_verified": true,
+  "frozen_artifacts_unchanged": true,
+  "predictions_zip_sha256": "6b01a02106243e85c29e2299286d54188ca5326ad004b39924d3ebf264349f5c",
+  "elapsed_seconds": 197.22447566699702
+}

@@ -13,16 +13,13 @@ class RailClassifier:
 	majority_label: str = "Normal"
 
 	def fit(self, rows: Sequence[dict[str, float]], labels: Sequence[str]) -> "RailClassifier":
-		if not rows:
-			return self
+		from sklearn.ensemble import ExtraTreesClassifier
+		if not rows or len(rows) != len(labels):
+			raise ValueError("Rail fit requires matching nonempty features and labels")
+		if not set(labels) <= {"Normal", "Side I", "Side II"}:
+			raise ValueError("Unknown Rail class")
 		self.feature_names = tuple(rows[0])
-		self.majority_label = max(set(labels), key=labels.count)
-		try:
-			from sklearn.ensemble import ExtraTreesClassifier
-		except ImportError:
-			return self
-		if len(set(labels)) < 2:
-			return self
+		self.majority_label = max(sorted(set(labels)), key=labels.count)
 		self.model = ExtraTreesClassifier(n_estimators=300, class_weight="balanced", random_state=42, n_jobs=-1)
 		self.model.fit([[row[name] for name in self.feature_names] for row in rows], labels)
 		return self
@@ -31,5 +28,5 @@ class RailClassifier:
 		if not rows:
 			return []
 		if self.model is None:
-			return [self.majority_label] * len(rows)
+			raise ValueError("Rail model is not fitted")
 		return [str(value) for value in self.model.predict([[row[name] for name in self.feature_names] for row in rows])]

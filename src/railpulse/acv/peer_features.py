@@ -85,8 +85,10 @@ def get_context_matched_peer_median(cars_data: Dict[str, pd.DataFrame], signal: 
         def masked_median(mask):
             # Fill masked out elements with NaN, then compute nanmedian along axis 1
             masked_signals = np.where(mask, signals, np.nan)
-            with np.errstate(all='ignore'):
-                return np.nanmedian(masked_signals, axis=1)
+            valid_rows = np.isfinite(masked_signals).any(axis=1)
+            medians = np.full(len(masked_signals), np.nan)
+            medians[valid_rows] = np.nanmedian(masked_signals[valid_rows], axis=1)
+            return medians
                 
         l1_med = masked_median(l1_mask)
         l2_med = masked_median(l2_mask)
@@ -111,7 +113,8 @@ def extract_peer_features(signal_series: pd.Series, peer_median: pd.Series, pref
     """
     features = {}
     
-    residual = (signal_series - peer_median).dropna()
+    full_residual = signal_series - peer_median
+    residual = full_residual.dropna()
     
     if len(residual) == 0:
         for k in ["residual_median", "residual_abs_median", "residual_abs_p90", "residual_abs_p95", 
@@ -128,13 +131,14 @@ def extract_peer_features(signal_series: pd.Series, peer_median: pd.Series, pref
     features[f"{prefix}residual_abs_max"] = float(abs_residual.max())
     
     median_res = features[f"{prefix}residual_median"]
-    features[f"{prefix}residual_mad"] = float((abs_residual - median_res).abs().median())
+    features[f"{prefix}residual_mad"] = float((residual - median_res).abs().median())
     
     features[f"{prefix}fraction_gt_1"] = float((abs_residual > 1.0).mean())
     features[f"{prefix}fraction_gt_2"] = float((abs_residual > 2.0).mean())
     
     # longest persistent deviation (e.g. > 1 degree)
-    is_dev = (abs_residual > 1.0).astype(int)
+    # Missing observations break persistence; dropping them bridges unrelated runs.
+    is_dev = (full_residual.abs() > 1.0).astype(int)
     runs = is_dev.groupby((is_dev != is_dev.shift()).cumsum()).sum()
     features[f"{prefix}longest_persistent_deviation"] = float(runs.max()) if not runs.empty else 0.0
     

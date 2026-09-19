@@ -12,7 +12,7 @@ from railpulse.core.inference import load_bundle
 from railpulse.core.predictions import validate_predictions
 
 ROOT = Path(__file__).resolve().parents[1]
-RUN = ROOT / "outputs/combined/merged-main"
+from railpulse.core.runtime import DEFAULT_RUN as RUN
 
 
 def test_packaged_results_have_exact_coverage_and_hashes():

@@ -24,13 +24,12 @@ class DoorModel:
 	majority_status: str = "Normal"
 
 	def fit(self, feature_rows: Sequence[dict[str, float | str]], labels: Sequence[str]) -> "DoorModel":
-		self.majority_status = max(set(labels), key=labels.count) if labels else "Normal"
-		try:
-			from sklearn.ensemble import ExtraTreesClassifier
-		except ImportError:
-			return self
-		if len(set(labels)) < 2 or len(labels) < 4:
-			return self
+		from sklearn.ensemble import ExtraTreesClassifier
+		if not labels or len(feature_rows) != len(labels):
+			raise ValueError("Door fit requires matching nonempty features and labels")
+		if not set(labels) <= {"Normal", "Abnormal resistance"}:
+			raise ValueError("Unknown Door status")
+		self.majority_status = max(sorted(set(labels)), key=labels.count)
 		matrix = [[float(row[name]) for name in FEATURE_NAMES] for row in feature_rows]
 		self.classifier = ExtraTreesClassifier(n_estimators=200, random_state=42, class_weight="balanced")
 		self.classifier.fit(matrix, labels)
@@ -40,7 +39,7 @@ class DoorModel:
 		if not feature_rows:
 			return []
 		if self.classifier is None:
-			return [self.majority_status] * len(feature_rows)
+			raise ValueError("Door model is not fitted")
 		matrix = [[float(row[name]) for name in FEATURE_NAMES] for row in feature_rows]
 		return list(self.classifier.predict(matrix))
 

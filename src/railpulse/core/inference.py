@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import importlib.metadata
 import json
 from pathlib import Path
 
@@ -9,16 +10,27 @@ import joblib
 import pandas as pd
 
 from .predictions import PredictionResult, SCHEMAS, validate_predictions
+from .bundle_contract import ARTIFACTS, inference_fingerprint
 
 
 def load_bundle(directory):
     """Only load trusted local model bundles (pickle/joblib can execute code)."""
     directory = Path(directory)
     metadata = json.loads((directory / "bundle.json").read_text())
-    if metadata["version"] != 1:
-        raise ValueError("Unsupported bundle version")
+    if metadata.get("version") != 2:
+        raise ValueError("Legacy/unbound bundle: regenerate with scripts/run_all.py before inference")
+    if set(metadata.get("sha256", {})) != ARTIFACTS:
+        raise ValueError("Bundle must checksum every required artifact")
+    if metadata.get("rail_model") not in ("pooled_spatial", "extra_trees"):
+        raise ValueError("Unknown Rail model in bundle")
+    if metadata.get("inference_sha256") != inference_fingerprint():
+        raise ValueError("Inference code changed since model validation; regenerate the model bundle")
+    required_versions = ("numpy", "pandas", "scipy", "scikit-learn", "joblib", "rainflow", "openpyxl")
+    for name in required_versions:
+        if metadata.get("runtime_versions", {}).get(name) != importlib.metadata.version(name):
+            raise ValueError(f"Bundle runtime mismatch for {name}; install requirements-all.txt")
     for name, checksum in metadata["sha256"].items():
-        if Path(name).name != name:
+        if Path(name).name != name or (directory / name).is_symlink():
             raise ValueError("Invalid artifact name")
         if hashlib.sha256((directory / name).read_bytes()).hexdigest() != checksum:
             raise ValueError(f"Model checksum mismatch: {name}")

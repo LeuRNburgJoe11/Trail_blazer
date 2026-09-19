@@ -6,10 +6,20 @@ from .metrics import rank_decay_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 
+def validate_cases(features_df, labels_map):
+    if features_df.empty or set(features_df.case_id) != set(labels_map):
+        raise ValueError("ACV validation requires exact case/label coverage")
+    if features_df.duplicated(["case_id", "car_id"]).any():
+        raise ValueError("Duplicate ACV case/car feature rows")
+    for case, rows in features_df.groupby("case_id"):
+        if labels_map[case] not in set(rows.car_id):
+            raise ValueError(f"Label names an absent ACV car: {case}")
+
 def evaluate_baseline_loocv(features_df: pd.DataFrame, labels_map: Dict[str, str]) -> pd.DataFrame:
     """
     Evaluates the baseline ranking model using Leave-One-Case-Out cross validation.
     """
+    validate_cases(features_df, labels_map)
     cases = features_df['case_id'].unique()
     results = []
     
@@ -47,6 +57,7 @@ def evaluate_sklearn_model_loocv(features_df: pd.DataFrame, labels_map: Dict[str
     Evaluates any scikit-learn compatible model using LOOCV.
     model_factory should be a callable that returns a new model instance.
     """
+    validate_cases(features_df, labels_map)
     cases = features_df['case_id'].unique()
     results = []
     
@@ -120,4 +131,3 @@ def generate_summary_table(results_df: pd.DataFrame, model_name: str) -> pd.Data
         "Top-2 count": (results_df["true_car_rank"] <= 2).sum(),
         "Worst true-car rank": results_df["true_car_rank"].max()
     }])
-

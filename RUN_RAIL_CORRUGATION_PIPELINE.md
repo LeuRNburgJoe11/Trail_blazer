@@ -1,5 +1,11 @@
 # Run the Rail Corrugation Pipeline
 
+**Current recommended inference:**
+`python scripts/rail/predict.py --input data/Rail_Corrugation/Test --output outputs/rail_predictions_audit.csv`.
+This wrapper now uses the validated frozen bundle and does not train. Choose a
+new output filename for each run. The function-level training examples below
+are retained baseline recipes, not the deployed model-selection workflow.
+
 For the validated four-subsystem workflow and train-only Rail model comparison,
 use `python scripts/run_all.py`; see [the integration guide](docs/INTEGRATION.md).
 The following is the retained standalone Extra Trees baseline.

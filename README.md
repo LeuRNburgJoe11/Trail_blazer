@@ -1,6 +1,16 @@
 # Trail_blazer
 This is Team TrailBlazer's submission for LTA x Nebula Hackathon. Our solution, known as Railpulse, provides advanced condition-monitoring and predictive maintenance pipelines.
 
+See the [19 September architecture audit](docs/ARCHITECTURE_AUDIT.md) for verified
+fixes, current validation evidence and remaining limitations. The active model
+bundle is `outputs/combined/architecture-audit-final/models`; earlier run folders
+are preserved historical results, not interchangeable runtime deployments.
+
+The [rubric audit and dashboard decision layer](docs/DECISION_LAYER.md) adds
+traceable review findings, data-quality gates, honest uncertainty and coverage
+without changing official predictions. Launch `app/main.py` for the review
+dashboard or run `python scripts/build_decisions.py` for dashboard JSON exports.
+
 ## Run all four subsystems
 
 ```bash

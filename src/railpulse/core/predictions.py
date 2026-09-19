@@ -26,7 +26,7 @@ class PredictionResult:
 
 
 def validate_predictions(subsystem, frame, *, expected_ids=None, expected_cars=None):
-    if list(frame.columns) != SCHEMAS[subsystem] or frame.empty or frame.isna().any().any():
+    if list(frame.columns) != SCHEMAS[subsystem] or (frame.empty and subsystem != "door") or frame.isna().any().any():
         raise ValueError(f"{subsystem}: empty predictions, missing values, or incorrect column order")
     if subsystem == "door":
         if not frame.prediction.isin(["Normal", "Abnormal resistance"]).all():

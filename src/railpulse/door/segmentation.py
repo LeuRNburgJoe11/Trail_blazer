@@ -50,33 +50,36 @@ def detect_intervals(
 			return "Close"
 		return "Open"
 
-	command_present = any(command_operation(sample) is not None for sample in samples)
-	starts = [0]
-	for index in range(1, len(samples)):
-		previous_command = command_operation(samples[index - 1])
-		current_command = command_operation(samples[index])
-		command_changed = current_command is not None and current_command != previous_command
-		previous_current = samples[index - 1].values.get("Motor current(mA)", 0.0)
-		current = samples[index].values.get("Motor current(mA)", 0.0)
-		previous_position = samples[index - 1].values.get("Door leaf position", 0.0)
-		position = samples[index].values.get("Door leaf position", 0.0)
-		effort_reset = (
-			previous_current >= 500
-			and current <= 500
-			and current <= previous_current * 0.75
-			and abs(position - previous_position) >= 100
-		)
-		if command_changed or (effort_reset and current_command is not None):
-			starts.append(index)
-
 	intervals: list[DoorInterval] = []
-	for position, start in enumerate(starts):
-		end = starts[position + 1] - 1 if position + 1 < len(starts) else len(samples) - 1
-		duration = samples[end].time_seconds - samples[start].time_seconds
-		if duration < min_duration_seconds:
+	if min_duration_seconds < 0 or close_gap_seconds < 0:
+		raise ValueError("Door segmentation durations must be nonnegative")
+	start = last_active = None
+	operation = None
+	def finish(end):
+		if start is not None and samples[end].time_seconds - samples[start].time_seconds >= min_duration_seconds:
+			intervals.append(DoorInterval(start, end, operation))
+	for index, sample in enumerate(samples):
+		command = command_operation(sample)
+		active = command is not None or movement_active(sample)
+		if start is not None and not active:
+			if sample.time_seconds - samples[last_active].time_seconds > close_gap_seconds:
+				finish(last_active)
+				start = None
 			continue
-		operation = command_operation(samples[start])
-		if operation is None:
-			operation = operation_for(samples[start])
-		intervals.append(DoorInterval(start, end, operation))
+		if not active:
+			continue
+		current_operation = command or operation_for(sample)
+		previous = samples[index - 1].values if index else {}
+		current = sample.values.get("Motor current(mA)", 0.0)
+		prior_current = previous.get("Motor current(mA)", 0.0)
+		effort_reset = (prior_current >= 500 and current <= 500 and current <= prior_current * .75
+			and abs(sample.values.get("Door leaf position", 0.0) - previous.get("Door leaf position", 0.0)) >= 100)
+		if start is not None and (current_operation != operation or effort_reset and command is not None):
+			finish(last_active)
+			start = None
+		if start is None:
+			start, operation = index, current_operation
+		last_active = index
+	if start is not None:
+		finish(last_active)
 	return intervals

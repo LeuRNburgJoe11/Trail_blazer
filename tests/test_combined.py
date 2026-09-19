@@ -92,7 +92,7 @@ def test_bundle_detects_tampering_before_deserialization(tmp_path):
     (tmp_path / "model.joblib").write_bytes(b"untrusted")
     (tmp_path / "bundle.json").write_text(json.dumps({"version": 1, "sha256": {"model.joblib": "wrong"}}))
     with patch("railpulse.core.inference.joblib.load") as deserialize:
-        with pytest.raises(ValueError, match="checksum"):
+        with pytest.raises(ValueError, match="bundle"):
             load_bundle(tmp_path)
         deserialize.assert_not_called()
 

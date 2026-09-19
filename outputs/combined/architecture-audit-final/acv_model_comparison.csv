@@ -1,0 +1,6 @@
+model,rank_decay_score
+baseline,0.9791666666666666
+logistic_regression,0.8541666666666666
+random_forest,0.8541666666666666
+gradient_boosting,0.7291666666666666
+linear_svm,0.875

@@ -26,22 +26,19 @@ def load_acv_case(path: str) -> ACVCase:
     # Identify timestamp column
     timestamp_col = None
     # Look for obvious time column
-    for col in df.columns:
-        col_str = str(col).lower()
-        if col_str == 'time' or col_str == 'timestamp' or 'date' in col_str:
-            timestamp_col = col
-            break
-            
-    if not timestamp_col:
-        # Fallback to the first column, usually it's time
-        timestamp_col = df.columns[0]
-        warnings.append(f"Could not explicitly identify time column, assuming '{timestamp_col}'")
+    time_columns = [col for col in df.columns if str(col).strip().lower() in ("time", "timestamp", "datetime")]
+    if len(time_columns) != 1:
+        raise ValueError("ACV requires exactly one explicit Time/Timestamp/Datetime column")
+    timestamp_col = time_columns[0]
         
-    # Sort timestamps
-    try:
-        df = df.sort_values(by=timestamp_col).reset_index(drop=True)
-    except Exception as e:
-        warnings.append(f"Could not sort by {timestamp_col}: {e}")
+    if df.empty:
+        raise ValueError("ACV case contains no telemetry rows")
+    df[timestamp_col] = pd.to_datetime(df[timestamp_col], errors="raise")
+    if df[timestamp_col].isna().any():
+        raise ValueError("ACV timestamps contain missing values")
+    if not df[timestamp_col].is_monotonic_increasing:
+        warnings.append("Input timestamps reordered chronologically")
+    df = df.sort_values(by=timestamp_col, kind="stable").reset_index(drop=True)
         
     timestamps = df[timestamp_col]
     
@@ -53,6 +50,8 @@ def load_acv_case(path: str) -> ACVCase:
     # Extract car parameters
     car_map = extract_cars_and_parameters(df.columns.tolist())
     car_ids = sorted(list(car_map.keys()))
+    if not car_ids:
+        raise ValueError("No native car telemetry columns found")
     
     cars = {}
     available_parameters = {}

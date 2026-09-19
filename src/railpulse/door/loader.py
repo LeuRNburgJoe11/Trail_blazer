@@ -3,13 +3,15 @@
 from __future__ import annotations
 
 import csv
+import math
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
 
-REQUIRED_COLUMNS = ("Datetime", "Close command", "Open command", "Door leaf position")
+from railpulse.core.data_validation import DOOR_COLUMNS
+REQUIRED_COLUMNS = tuple(DOOR_COLUMNS)
 
 
 @dataclass(frozen=True)
@@ -36,6 +38,8 @@ def load_stream(path: str | Path) -> list[DoorSample]:
 		missing = [column for column in REQUIRED_COLUMNS if column not in fields]
 		if missing:
 			raise ValueError(f"Door CSV is missing columns: {', '.join(missing)}")
+		if len(set(fields)) != len(fields):
+			raise ValueError("Duplicate Door columns")
 		samples = []
 		for row in reader:
 			timestamp = row["Datetime"]
@@ -44,7 +48,12 @@ def load_stream(path: str | Path) -> list[DoorSample]:
 				for field, value in row.items()
 				if field != "Datetime" and value not in (None, "")
 			}
-			samples.append(DoorSample(timestamp, parse_timestamp(timestamp), values))
+			if any(value in (None, "") for field, value in row.items() if field != "Datetime") or not all(math.isfinite(value) for value in values.values()):
+				raise ValueError("Door telemetry contains missing or non-finite values")
+			time_seconds = parse_timestamp(timestamp)
+			if samples and time_seconds <= samples[-1].time_seconds:
+				raise ValueError("Door timestamps must increase uniquely")
+			samples.append(DoorSample(timestamp, time_seconds, values))
 	if not samples:
 		raise ValueError(f"Door CSV contains no samples: {path}")
 	return samples

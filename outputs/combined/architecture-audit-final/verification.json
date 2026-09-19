@@ -1,0 +1,20 @@
+{
+  "status": "passed",
+  "test_command": "python -B -m pytest -q",
+  "tests_passed": 149,
+  "warnings": 0,
+  "all_four_subsystems_run": true,
+  "test_input_counts": {"door": 1, "acv": 1, "rail": 68, "shm": 16},
+  "prediction_counts": {"door": 38, "acv": 1, "rail": 68, "shm": 16},
+  "all_official_csvs_byte_identical_to_merged_main": true,
+  "bundle_version": 2,
+  "inference_source_and_runtime_bound": true,
+  "bad_bundle_rejected_before_deserialization": true,
+  "source_snapshot_unchanged_during_run": true,
+  "rail_nested_split_disjointness_verified": true,
+  "shared_cli_does_not_train": true,
+  "shared_cli_refuses_overwrite": true,
+  "dashboard_replay_records": 123,
+  "test_labels_available": false,
+  "limitations": "Validation is not organiser-held test performance. Prototype review support, not production safety or maintenance automation."
+}

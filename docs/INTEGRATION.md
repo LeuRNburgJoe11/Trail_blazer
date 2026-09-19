@@ -1,5 +1,11 @@
 # Integrated RailPulse workflow
 
+**Current deployment:** the [architecture audit](ARCHITECTURE_AUDIT.md) supersedes
+the original merge-run model paths below. Use
+`outputs/combined/architecture-audit-final/models` (the app/CLI default).
+The `merged-main` figures and artifacts below remain historical evidence;
+version-1 bundles are not accepted by the source-bound version-2 runtime.
+
 The canonical implementation is `src/railpulse/`. All four subsystems now share
 `railpulse.core.inference.predict_file` for both the batch runner and the unified
 Streamlit application. Fitting only reads training data. Uploads never retrain.

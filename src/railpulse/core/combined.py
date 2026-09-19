@@ -22,6 +22,7 @@ from .data_preparation import load_lock, prepare
 from .inference import load_bundle, predict_file
 from .metrics import door_iou_weighted_f1
 from .predictions import csv_bytes
+from .bundle_contract import inference_fingerprint
 
 
 def write_json(path, value):
@@ -104,10 +105,35 @@ def train_rail(root, output):
         print(f"Rail {kind}: mean CV macro F1={np.mean(fold_scores):.4f}", flush=True)
     # Stable tie-break: retain the simpler existing implementation.
     winner = max(factories, key=lambda name: report[name]["mean_fold_macro_f1"])
+    # Independently evaluate candidate selection inside each outer training fold.
+    nested_rows, nested_scores = [], []
+    for fold, (outer_train, outer_valid) in enumerate(splits):
+        inner = list(StratifiedKFold(3, shuffle=True, random_state=137 + fold).split(outer_train, targets[outer_train]))
+        selection = {}
+        for kind, factory in factories.items():
+            scores = []
+            for a, b in inner:
+                train, valid = outer_train[a], outer_train[b]
+                fitted_inner = factory().fit([features[kind][i] for i in train], targets[train].tolist())
+                predicted = fitted_inner.predict([features[kind][i] for i in valid])
+                scores.append(f1_score(targets[valid], predicted, labels=["Normal", "Side I", "Side II"], average="macro", zero_division=0))
+            selection[kind] = float(np.mean(scores))
+        chosen = max(selection, key=selection.get)
+        fitted_outer = factories[chosen]().fit([features[chosen][i] for i in outer_train], targets[outer_train].tolist())
+        predicted = fitted_outer.predict([features[chosen][i] for i in outer_valid])
+        score = float(f1_score(targets[outer_valid], predicted, labels=["Normal", "Side I", "Side II"], average="macro", zero_division=0))
+        nested_scores.append(score)
+        nested_rows.append({"fold": fold, "chosen": chosen, "inner_mean_macro_f1": selection, "outer_macro_f1": score,
+                            "training_files": [names[i] for i in outer_train], "validation_files": [names[i] for i in outer_valid],
+                            "inner_splits": [{"training_files": [names[outer_train[i]] for i in a],
+                                              "validation_files": [names[outer_train[i]] for i in b]} for a, b in inner]})
+    write_json(output / "rail_nested_validation.json", nested_rows)
     fitted = factories[winner]().fit(features[winner], targets.tolist())
     joblib.dump(fitted, output / "models/rail.joblib")
     pd.DataFrame(all_oof).to_csv(output / "rail_oof_predictions.csv", index=False)
     return {"selected_model": winner, "protocol": "5-fold file-level stratified CV, random_state=42",
+            "nested_selection_mean_macro_f1": float(np.mean(nested_scores)),
+            "nested_selection_protocol": "5 outer folds; 3 inner folds choose candidate strictly within outer training files",
             "candidates": report, "n_training_files": len(paths),
             "limitations": "CV used for model selection, not an unbiased post-selection estimate. Nearby recording/session grouping is unavailable; file-level CV may be optimistic."}
 
@@ -115,7 +141,13 @@ def train_rail(root, output):
 def evaluate_acv(root, output):
     from railpulse.acv.loader import load_acv_case
     from railpulse.acv.feature_pipeline import build_features_for_case
-    from railpulse.acv.validation import evaluate_baseline_loocv
+    from railpulse.acv.validation import evaluate_baseline_loocv, evaluate_sklearn_model_loocv
+    from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.svm import SVC
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+    import pickle
 
     directory = root / "data/acv"
     labels = pd.read_csv(directory / "Train_Labels.csv", dtype=str)
@@ -128,6 +160,7 @@ def evaluate_acv(root, output):
     if set(features.case_id) != set(label_map):
         raise ValueError("ACV training feature/label coverage mismatch")
     folds = evaluate_baseline_loocv(features, label_map)
+    features["faulty"] = [int(car == label_map[case]) for case, car in zip(features.case_id, features.car_id)]
     features.to_csv(output / "acv_train_features.csv", index=False)
     folds.to_csv(output / "acv_validation.csv", index=False)
     # Retain the ACV branch's selected frozen baseline, not an unfitted fallback.
@@ -139,8 +172,33 @@ def evaluate_acv(root, output):
         raise ValueError("ACV frozen model changed; reevaluate the selected model before packaging")
     if set(artifact["training_cases"]) != set(label_map):
         raise ValueError("ACV artifact training cases differ from current data")
-    shutil.copy2(source, output / "models/acv.pkl")
-    return {"selected_model": "frozen ACV baseline from ACV branch", "protocol": "leave-one-case-out",
+    factories = {
+        "logistic_regression": lambda: LogisticRegression(class_weight="balanced", max_iter=5000, random_state=42),
+        "random_forest": lambda: RandomForestClassifier(n_estimators=100, class_weight="balanced", random_state=42),
+        "gradient_boosting": lambda: GradientBoostingClassifier(n_estimators=100, random_state=42),
+        "linear_svm": lambda: SVC(kernel="linear", class_weight="balanced", probability=True, random_state=42),
+    }
+    comparisons = {"baseline": float(folds.rank_decay_score.mean())}
+    all_folds = {"baseline": folds}
+    for name, factory in factories.items():
+        result = evaluate_sklearn_model_loocv(features, label_map, factory)
+        result.to_csv(output / f"acv_validation_{name}.csv", index=False)
+        comparisons[name] = float(result.rank_decay_score.mean())
+        all_folds[name] = result
+    selected = max(comparisons, key=comparisons.get)  # stable tie: baseline first
+    if selected == "baseline":
+        shutil.copy2(source, output / "models/acv.pkl")
+    else:
+        columns = [c for c in features if c not in ("case_id", "car_id", "faulty", "filename")]
+        model = make_pipeline(StandardScaler(), factories[selected]())
+        model.fit(features[columns].fillna(0), features.faulty)
+        artifact = {"model_type": "sklearn", "feature_schema": columns, "pipeline": model,
+                    "training_cases": list(label_map), "version": "2.0"}
+        with (output / "models/acv.pkl").open("wb") as handle:
+            pickle.dump(artifact, handle)
+    folds = all_folds[selected]
+    pd.DataFrame([{"model": name, "rank_decay_score": value} for name, value in comparisons.items()]).to_csv(output / "acv_model_comparison.csv", index=False)
+    return {"selected_model": selected, "candidate_rank_decay": comparisons, "protocol": "leave-one-case-out; scaler fitted within each fold",
             "rank_decay_score": float(folds.rank_decay_score.mean()),
             "top_1_count": int((folds.true_car_rank == 1).sum()), "n_cases": len(folds),
             "limitations": "Only six independent cases; baseline was selected using these same cases."}
@@ -180,7 +238,8 @@ def run_all(root, output, *, verify_data=True):
                                           "report": "outputs/shm/training_summary.json",
                                           "report_sha256": sha256(root / "outputs/shm/training_summary.json")}
         model_files = sorted((output / "models").iterdir())
-        metadata = {"version": 1, "rail_model": summary["validation"]["rail"]["selected_model"],
+        metadata = {"version": 2, "rail_model": summary["validation"]["rail"]["selected_model"],
+                    "inference_sha256": inference_fingerprint(),
                     "sha256": {path.name: sha256(path) for path in model_files},
                     "runtime_versions": summary["runtime_versions"]}
         write_json(output / "models/bundle.json", metadata)
@@ -208,6 +267,11 @@ def run_all(root, output, *, verify_data=True):
         for name, checksum in metadata["sha256"].items():
             if sha256(output / "models" / name) != checksum:
                 raise ValueError("Inference modified a frozen artifact")
+        current_source = {str(path.relative_to(root)): sha256(path)
+                          for path in sorted((root / "src/railpulse").rglob("*.py"))
+                          if "rail/railpulse/" not in str(path.relative_to(root))}
+        if current_source != summary["source_sha256"]:
+            raise ValueError("Source code changed during this run; rerun on a stable code snapshot")
         # Publish the ZIP only after every prediction passes schema/coverage checks.
         temporary_zip = output / "predictions.zip.tmp"
         with zipfile.ZipFile(temporary_zip, "w", zipfile.ZIP_DEFLATED) as archive:

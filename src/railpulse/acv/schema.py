@@ -27,6 +27,7 @@ def extract_cars_and_parameters(columns: List[str]) -> Dict[str, Dict[str, str]]
         if car_id is not None:
             if car_id not in cars:
                 cars[car_id] = {}
+            if param_name in cars[car_id]:
+                raise ValueError(f"Duplicate telemetry mapping for car {car_id}: {param_name}")
             cars[car_id][param_name] = col
     return cars
-
