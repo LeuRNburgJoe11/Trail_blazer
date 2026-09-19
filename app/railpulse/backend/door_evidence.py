@@ -20,6 +20,10 @@ from pathlib import Path
 import numpy as np
 
 CURRENT = "Motor current(mA)"
+POSITION = "Door leaf position"
+# Interlock and limit switches the schematic animates. These are real columns in
+# the Door telemetry, so the switch states shown are measured, not simulated.
+SWITCHES = ("DCSR", "DCSL", "DLSR", "DLSL", "Door Opened", "Door Locked")
 # A window shorter than this is not worth sending someone to inspect.
 MIN_REGION_SECONDS = 0.15
 MAX_TRACE_POINTS = 400
@@ -131,6 +135,67 @@ def _reason(status: str, operation: str, fraction: float, regions: list, indicat
     return "".join(parts)
 
 
+def _switch_events(samples, interval) -> dict:
+    """Each limit/interlock switch as its transitions, not a value per frame.
+
+    They flip roughly once per cycle, so events keep the payload small while
+    still letting the schematic show the exact moment a switch made.
+    """
+    window = samples[interval.start_index : interval.end_index + 1]
+    started = parse_native(window[0].timestamp)
+    events = {}
+    for name in SWITCHES:
+        if name not in window[0].values:
+            continue
+        series = []
+        previous = None
+        for sample in window:
+            value = float(sample.values.get(name, 0.0))
+            if previous is None or value != previous:
+                offset = (parse_native(sample.timestamp) - started).total_seconds()
+                series.append({"t": round(offset, 3), "value": int(value)})
+                previous = value
+        events[name] = series
+    return events
+
+
+def _motion(samples, interval, trace: list, regions: list) -> dict:
+    """What the leaves actually did, for the schematic to replay.
+
+    Leaf openness is the measured "Door leaf position" scaled against the widest
+    opening seen anywhere in the recording, so a cycle that never fully opens
+    reads as partial rather than being stretched to look complete.
+    """
+    window = samples[interval.start_index : interval.end_index + 1]
+    full_open = max((s.values.get(POSITION, 0.0) for s in samples), default=0.0)
+    if full_open <= 0:
+        return {"available": False,
+                "note": "No door leaf position channel in this recording; the schematic cannot be replayed."}
+    currents = [point["current"] for point in trace]
+    # Where in the stroke the elevated-effort intervals happened, so the marker
+    # sits where effort actually rose instead of at a fixed point on the leaf.
+    by_time = {point["t"]: point.get("open_pct") for point in trace}
+    windows = []
+    for region in regions:
+        spans = [value for offset, value in by_time.items()
+                 if region["start_offset"] <= offset <= region["end_offset"] and value is not None]
+        if spans:
+            windows.append({"from_open_pct": round(min(spans), 1), "to_open_pct": round(max(spans), 1),
+                            "start_clock": region["start_clock"], "end_clock": region["end_clock"]})
+    return {
+        "available": True,
+        "operation": interval.operation,
+        "full_open_position": round(float(full_open), 1),
+        "open_pct_start": trace[0].get("open_pct"),
+        "open_pct_end": trace[-1].get("open_pct"),
+        "peak_current": round(max(currents), 1) if currents else None,
+        "mean_current": round(sum(currents) / len(currents), 1) if currents else None,
+        "switches": _switch_events(samples, interval),
+        "elevated_windows": windows,
+        "n_frames": len(trace),
+    }
+
+
 def cycle_evidence(samples, interval, status: str, reference: dict) -> dict:
     """Timeframe, indicators and current trace behind one Door cycle's call."""
     from railpulse.door.features import extract_features
@@ -142,6 +207,9 @@ def cycle_evidence(samples, interval, status: str, reference: dict) -> dict:
     duration = (ended - started).total_seconds()
     current = np.array([s.values.get(CURRENT, 0.0) for s in window], dtype=float)
     seconds = np.array([(parse_native(s.timestamp) - started).total_seconds() for s in window], dtype=float)
+    position = np.array([s.values.get(POSITION, 0.0) for s in window], dtype=float)
+    full_open = max((s.values.get(POSITION, 0.0) for s in samples), default=0.0)
+    open_pct = (position / full_open * 100) if full_open > 0 else None
 
     evidence = {
         "operation": operation,
@@ -175,12 +243,15 @@ def cycle_evidence(samples, interval, status: str, reference: dict) -> dict:
         fraction_above_envelope=round(float(above.mean()), 3),
         regions=regions,
         indicators=indicators,
-        trace=[{"t": round(float(t), 3), "current": round(float(c), 1), "envelope": round(float(e), 1)}
-               for t, c, e in zip(seconds[::step], current[::step], envelope_at)],
+        trace=[{"t": round(float(t), 3), "current": round(float(c), 1), "envelope": round(float(e), 1),
+                "open_pct": (None if open_pct is None else round(float(o), 1))}
+               for t, c, e, o in zip(seconds[::step], current[::step], envelope_at,
+                                     (open_pct if open_pct is not None else position)[::step])],
         reason=_reason(status, operation, float(above.mean()), regions, indicators,
                        entry.get("normal_fraction_above_median")),
         typical_fraction_above=entry.get("normal_fraction_above_median"),
     )
+    evidence["motion"] = _motion(samples, interval, evidence["trace"], regions)
     return evidence
 
 

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import DoorTrace from "./DoorTrace";
+import DoorSchematic from "./DoorSchematic";
 import Icon from "./Icon";
 
 /**
@@ -55,6 +56,18 @@ function Cycle({ row, showConfidence }) {
 
       {open && (
         <div className="cycle__evidence">
+          {evidence.motion && (
+            <>
+              <h4 className="section-label">Replay &mdash; what the leaves did</h4>
+              <DoorSchematic
+                motion={evidence.motion}
+                trace={evidence.trace}
+                status={row.prediction}
+                operation={evidence.operation}
+              />
+            </>
+          )}
+
           {evidence.trace?.length > 0 && (
             <DoorTrace
               trace={evidence.trace}
@@ -109,10 +122,12 @@ function Cycle({ row, showConfidence }) {
               </div>
             </>
           )}
-          <p className="muted note">
-            Source row {row.source_file ? `${row.source_file}, ` : ""}
-            {evidence.n_samples} samples. Indicators compare this cycle with the median Normal
-            cycle of the same operation from the labelled training segments.
+          {/* Per cycle, only what differs between cycles. The method behind the
+              comparison is stated once for the whole panel, not on every card. */}
+          <p className="cycle__source">
+            {[row.source_file, evidence.n_samples ? `${evidence.n_samples} samples` : null,
+              evidence.motion?.available ? `${evidence.motion.peak_current} mA peak` : null]
+              .filter(Boolean).join(" · ")}
           </p>
         </div>
       )}
@@ -160,6 +175,16 @@ export default function DoorResults({ data }) {
       {rows.map((row, index) => (
         <Cycle key={`${row.start_time}-${index}`} row={row} showConfidence={showConfidence} />
       ))}
+
+      {rows.length > 0 && (
+        <p className="muted note door__method">
+          Each cycle is compared with the median Normal cycle of the same operation from the
+          labelled training segments. The Normal envelope is the 90th percentile of those cycles&apos;
+          motor current at each point of cycle progress, so &ldquo;above envelope&rdquo; means this
+          cycle drew more than roughly nine in ten Normal ones did at the same part of the stroke.
+          The replay is measured leaf position and real switch states, not a simulation.
+        </p>
+      )}
     </div>
   );
 }

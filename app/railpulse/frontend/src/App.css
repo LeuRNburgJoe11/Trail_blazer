@@ -1094,3 +1094,140 @@ body { background: var(--surface-0); }
   .consist__car { min-height: 64px; }
   .consist__car-label { font-size: 9px; }
 }
+
+/* ==========================================================================
+   Door schematic -- replayed from recorded leaf position and switch states
+   ========================================================================== */
+.schematic { margin-bottom: 1.25rem; }
+
+.schematic__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.schematic__play { padding: 5px 12px; font-size: 12px; }
+
+.schematic__scrub {
+  flex: 1 1 140px;
+  min-width: 120px;
+  accent-color: var(--accent);
+}
+
+.schematic__time {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 52px;
+  text-align: right;
+}
+
+.schematic__svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface-0);
+}
+
+.sc-body { fill: var(--surface-0); stroke: var(--border); stroke-width: 1.5; }
+.sc-housing { fill: var(--surface-2); stroke: var(--border); stroke-width: 1.2; }
+.sc-label { fill: var(--text-muted); font-size: 10px; font-family: ui-monospace, Menlo, monospace; }
+.sc-motor { fill: var(--surface-1); stroke: var(--text-muted); stroke-width: 1.5; }
+.sc-motor--hot { fill: var(--status-fault-bg); stroke: var(--status-fault); stroke-width: 2.5; }
+.sc-motor-text { fill: var(--text-secondary); font-size: 10px; font-weight: 700; }
+.sc-lamp { fill: var(--surface-2); stroke: var(--border); stroke-width: 1.2; }
+.sc-lamp--on { fill: var(--status-clear); stroke: var(--status-clear); }
+.sc-switch { fill: var(--text-muted); font-size: 9px; font-family: ui-monospace, Menlo, monospace; }
+.sc-track { stroke: var(--border); stroke-width: 3; stroke-dasharray: 6 3; }
+.sc-interior { fill: var(--surface-0); }
+.sc-interior-text { fill: var(--border); font-size: 15px; font-weight: 700; letter-spacing: 3px; }
+.sc-leaf { fill: var(--surface-2); stroke: var(--text-muted); stroke-width: 1.5; }
+.sc-window { fill: var(--accent-bg); stroke: var(--accent); stroke-width: 1.2; opacity: 0.75; }
+.sc-rail { stroke: var(--text-muted); stroke-width: 2.5; stroke-linecap: round; }
+.sc-sill { fill: var(--surface-2); stroke: var(--border); stroke-width: 1.2; }
+.sc-marker { fill: var(--status-fault); }
+.sc-marker-text { fill: var(--status-fault); font-size: 10px; font-weight: 600; }
+
+.schematic__readouts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.readout {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 9px 11px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+.readout__label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.readout__value {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.readout__value--fault { color: var(--status-fault); }
+
+.readout__sub { font-size: 11px; color: var(--text-muted); }
+
+.readout__bar {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--surface-1);
+  overflow: hidden;
+}
+
+.readout__fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 60ms linear;
+}
+
+.readout__switches { display: flex; flex-wrap: wrap; gap: 5px; }
+
+.chip {
+  padding: 2px 7px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  font-size: 10.5px;
+  font-family: ui-monospace, Menlo, monospace;
+}
+
+.chip--on {
+  border-color: var(--status-clear);
+  color: var(--status-clear);
+  background: var(--status-clear-bg);
+}
+
+.cycle__source {
+  margin: 0.85rem 0 0;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.door__method {
+  margin-top: 1.25rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--border);
+  line-height: 1.55;
+}

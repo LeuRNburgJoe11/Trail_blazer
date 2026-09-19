@@ -20,6 +20,9 @@ Each predict endpoint returns JSON: {"rows": [...], "submission_csv": "..."}
 official-schema CSV text ready to download as-is (no client-side CSV
 construction, so the frontend can't accidentally drift from the schema).
 """
+import json
+import os
+import subprocess
 import sys
 import tempfile
 from pathlib import Path
@@ -41,6 +44,9 @@ from railpulse.door.pipeline import DoorPipeline
 from railpulse.rail.pipeline import RailPipeline
 
 REGISTRY_DIR = "./registry"
+PROTOTYPE_DIR = Path(__file__).resolve().parent.parent
+ROOT_REPO = PROTOTYPE_DIR.parents[1]
+DOOR_INFER = PROTOTYPE_DIR / "scripts/door_infer.py"
 
 # Operating context the UI shows as "readings in". Every entry is optional:
 # case files genuinely carry different parameter sets, so a missing name must
@@ -270,27 +276,37 @@ def status():
 
 @app.post("/api/door/predict")
 def predict_door(files: List[UploadFile] = File(...)):
-    model, record = _load_registered("door")
-    if model is None:
-        raise HTTPException(503, "No trained Door model registered. Run scripts/train_door.py first.")
-    pipeline = DoorPipeline(model=model)
+    """Door runs on the canonical root pipeline, isolated in a subprocess.
 
-    all_rows = []
+    See scripts/door_infer.py: the two `railpulse` packages cannot share an
+    interpreter, so the process boundary is what lets this panel show the
+    audited segmentation and per-cycle evidence.
+    """
+    rows = []
     for upload in files:
-        stream = load_stream(_save_upload(upload, ".csv"))
-        result = pipeline.predict(stream)
-        df = door_result_to_frame(result)
-        df.insert(0, "source_file", upload.filename)
-        all_rows.append(df)
+        source = Path(_save_upload(upload, ".csv"))
+        destination = source.with_suffix(".door.json")
+        environment = dict(os.environ)
+        # Replace, never append: inheriting this prototype's src would let its
+        # own `railpulse` shadow the canonical one inside the child.
+        environment["PYTHONPATH"] = str(ROOT_REPO / "src")
+        finished = subprocess.run(
+            [sys.executable, str(DOOR_INFER), "--input", str(source),
+             "--output", str(destination), "--source-name", upload.filename],
+            capture_output=True, text=True, env=environment, cwd=str(PROTOTYPE_DIR),
+        )
+        if finished.returncode != 0:
+            detail = (finished.stderr or finished.stdout or "").strip().splitlines()
+            raise HTTPException(500, f"Door inference failed: {detail[-1] if detail else 'unknown error'}")
+        rows.extend(json.loads(destination.read_text(encoding="utf-8"))["rows"])
 
-    combined = pd.concat(all_rows, ignore_index=True) if all_rows else pd.DataFrame(
-        columns=["source_file", "start_time", "end_time", "prediction"]
-    )
-    submission = combined.drop(columns=["source_file"])  # official Door schema has no file id
+    # Official Door schema is start_time,end_time,prediction -- no file id.
+    submission = pd.DataFrame([{key: row[key] for key in ("start_time", "end_time", "prediction")}
+                               for row in rows], columns=["start_time", "end_time", "prediction"])
     return {
-        "rows": combined.to_dict(orient="records"),
+        "rows": rows,
         "submission_csv": submission.to_csv(index=False),
-        "model_score": record.fold_scores.get("held_out_iou_f1"),
+        "model_score": None,
     }
 
 
