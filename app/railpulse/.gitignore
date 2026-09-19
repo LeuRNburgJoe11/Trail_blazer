@@ -1,0 +1,12 @@
+# Fitted model artifacts -- regenerate with scripts/train_*.py
+registry/
+
+# Packaging / editable-install metadata
+*.egg-info/
+__pycache__/
+*.py[cod]
+.venv/
+
+# Feature caches and prediction outputs
+rail_features_*.csv
+*_predictions.csv

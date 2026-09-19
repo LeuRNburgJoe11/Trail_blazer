@@ -11,6 +11,10 @@ traceable review findings, data-quality gates, honest uncertainty and coverage
 without changing official predictions. Launch `app/main.py` for the review
 dashboard or run `python scripts/build_decisions.py` for dashboard JSON exports.
 
+The separate React/FastAPI prototype in [`app/railpulse/`](app/railpulse/README.md)
+is preserved for future UI integration. It has its own duplicate Python package and
+model registry; it is not yet wired to the audited four-subsystem decision layer.
+
 ## Run all four subsystems
 
 ```bash

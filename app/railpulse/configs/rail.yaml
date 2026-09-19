@@ -1,0 +1,35 @@
+subsystem: rail
+version: v0_baseline
+
+speed:
+  teeth_per_rev: 90
+  wheel_diameter_m: 0.85
+
+features:
+  # Wavenumber (cycles/metre) band edges = 1/wavelength_m; wavelength range
+  # 2-50 cm per the Info Kit. Frequency-domain bins are speed-normalised by
+  # converting Hz -> cycles/metre using the file's own recovered speed, so
+  # the same physical defect lands in the same band regardless of speed.
+  wavenumber_band_edges_cpm: [2.0, 4.0, 8.0, 16.0, 32.0, 50.0]
+  welch_nperseg: 2048
+
+model:
+  type: GradientBoostingClassifier
+  random_state: 0
+  # Pooled side-binary design: Side I and Side II feature vectors from every
+  # training file are pooled into ONE binary "corrugated or not" training
+  # set (14 + 24 = 38 pooled positives vs. 234*2 pooled negatives), instead
+  # of training two separate weak per-side models.
+  decision_threshold: 0.5
+
+evaluation:
+  cv: StratifiedKFold
+  n_splits: 5
+  metric: macro_f1  # organiser's exact metric -- see core/metrics.rail_macro_f1
+
+# Next steps once this baseline is beaten:
+#   - Tune decision_threshold per side via CV to trade Normal precision for
+#     minority-class recall (macro F1 rewards this).
+#   - Try order-domain (wheel-rotation-relative) features alongside the
+#     wavenumber features as a second feature family.
+#   - Revisit two independent per-side models once more labelled data exists.
